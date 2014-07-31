@@ -536,7 +536,7 @@ def unset_bans_akick(cli, rnick, chan, mode, *action):
             def am_i_op_now(cli, server, you, nick, status):
                 if you == nick and '@' in status:
                     cli.mode(chan, "-b", ban)
-                    cli.msg(chan, "\u0001ACTION resets the trap...\u0002")
+                    cli.msg(chan, "\u0001ACTION resets the trap...\u0001")
                 @hook("endofwho", hookid=126)
                 def unhook_after_ban(cli, server, you, chan, output):
                     decorators.unhook(HOOKS, 126)
@@ -2765,7 +2765,7 @@ def say_through_bot(cli, rnick, chan, rest):
 def me_through_bot(cli, rnick, chan, rest):
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
-        cli.msg(botconfig.CHANNEL, "\u0001ACTION {0}\u0002".format(rest))
+        cli.msg(botconfig.CHANNEL, "\u0001ACTION {0}\u0001".format(rest))
         if var.LOG_CHAN == True:
             chan_log(cli, rnick, "me_bot")
 
@@ -2774,7 +2774,7 @@ def act_through_bot(cli, rnick, chan, rest):
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
         params = rest.split()
-        cli.msg(params[0], "\u0001ACTION {0}\u0002".format(params[1:]))
+        cli.msg(params[0], "\u0001ACTION {0}\u0001".format(params[1:]))
         if var.LOG_CHAN == True:
             chan_log(cli, rnick, "act_bot")
 
