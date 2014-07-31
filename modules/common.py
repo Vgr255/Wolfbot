@@ -9,6 +9,7 @@ from settings import common as var
 from base64 import b64encode
 import imp
 import settings.wolfgame as settings
+import sys
 
 settings.ERRORS = 0
 
