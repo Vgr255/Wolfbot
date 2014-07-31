@@ -70,6 +70,7 @@ var.NO_LYNCH = []
 var.TO_PING = []
 var.CONNECT_OK = False
 var.DCED_GRACE = []
+var.GIT_UPDATE = False
 
 var.ORIGINAL_SETTINGS = {}
 
@@ -1484,6 +1485,19 @@ def update_last_said(cli, nick, chan, rest):
             cli.msg(chan, 'Process {} exited with {} {}'.format(args,
                                                                 cause,
                                                                 abs(ret)))
+        if ret == 0:
+            if var.PHASE == "none":
+                cli.msg(chan, "Code successfully updated. Restarting.")
+                cli.quit("Updating database")
+            if var.PHASE == "join":
+                cli.msg(chan, "Code successfully updated. Stopping current game and restarting.")
+                stop_game(cli)
+                cli.quit("Updating database")
+            if var.PHASE in ["day", "night"]
+                cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
+                var.GIT_UPDATE = True
+                aftergame(cli, var.FULL_ADDRESS, "update")
+                
 
 @hook("join")
 def on_join(cli, raw_nick, chan, acc="*", rname=""):
@@ -3955,9 +3969,12 @@ def aftergame(cli, rawnick, rest):
         do_action()
         return
     if var.LOG_CHAN == True:
-        chan_log(cli, nick, "aftergame")
-    cli.msg(chan, ("The command \02{0}\02 has been scheduled to run "+
-                  "after this game by \02{1}\02.").format(cmd, nick))
+        chan_log(cli, rawnick, "aftergame")
+    if var.GIT_UPDATE == False:
+        cli.msg(chan, ("The command \02{0}\02 has been scheduled to run "+
+                       "after this game by \02{1}\02.").format(cmd, nick))
+    elif var.GIT_UPDATE == True:
+        cli.msg(chan, "\u0002The bot will automatically restart once this game is over.\u0002")
     var.AFTER_FLASTGAME = do_action
 
     
