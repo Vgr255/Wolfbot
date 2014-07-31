@@ -2774,7 +2774,7 @@ def act_through_bot(cli, rnick, chan, rest):
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
         params = rest.split()
-        cli.msg(params[0], "\u0001ACTION {0}\u0001".format(params[1:]))
+        cli.msg(params[0], "\u0001ACTION {0}\u0001".format(" ".join(params[1:])))
         if var.LOG_CHAN == True:
             chan_log(cli, rnick, "act_bot")
 
