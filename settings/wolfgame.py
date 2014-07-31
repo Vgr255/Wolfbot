@@ -359,12 +359,13 @@ def get_player_totals(acc):
         c.execute("SELECT player FROM rolestats WHERE player=? COLLATE NOCASE", (acc,))
         player = c.fetchone()
         if player:
-            for role in ["villager"] + [v for k, v in ROLE_INDICES.items()]:
-                c.execute("SELECT totalgames FROM rolestats WHERE player=? COLLATE NOCASE AND role=? COLLATE NOCASE", (acc, role))
-                row = c.fetchone()
-                if row:
-                    role_totals.append("\u0002{0}\u0002: {1}".format(role, *row))
-            return "\u0002{0}\u0002's totals | {1}".format(player[0], ", ".join(role_totals))
+            c.execute("SELECT role, totalgames FROM rolestats WHERE player=? COLLATE NOCASE", (acc,))
+            rows = c.fetchall()
+            total = 0
+            for row in rows:
+                total += row[1]
+                role_totals.append("\u0002{0}\u0002: {1}".format(*row))
+            return "\u0002{0}\u0002's totals | \u0002{1} total games\u0002 | {2}".format(player[0], total, ", ".join(role_totals))
         else:
             return "{0} has not played any games.".format(acc)
             
