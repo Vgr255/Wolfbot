@@ -168,7 +168,7 @@ def connect_callback(cli):
         if botconfig.ADMIN_CHAN == "":
             var.LOG_CHAN = False
         if botconfig.DEV_CHAN != "" and settings.ALLOW_GIT == True:
-            cli.join(botconfig.DEV_CHAN
+            cli.join(botconfig.DEV_CHAN)
         
         cli.cap("REQ", "extended-join")
         cli.cap("REQ", "account-notify")
