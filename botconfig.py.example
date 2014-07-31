@@ -16,7 +16,7 @@ GIT_OWNER  "" # Who pushes commits to master
 SPECIAL_CHAN = "" # special channel for various purposes. leave blank if you don't want the bot to join it
 PERFORM = "" # commands to perform on connect. do NOT put a / or it will not work. syntax: "COMMAND param1 param2 :data to send"
 COMMON_HOSTS = ("", "") # hosts that more than one person use; ident@host will be used instead
-DISABLED_COMMANDS = ["roles"] # disabled commands. at least must be specified, blank if needed
+DISABLED_COMMANDS = [] # disabled commands. at least must be specified, blank if needed
 
 SASL_AUTHENTICATION = True  # put account name in USERNAME ^ if different from nick
 USE_SSL = True

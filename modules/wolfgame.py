@@ -571,11 +571,11 @@ def join(cli, rnick, chan, rest):
                            'Type "{1}wait" to increase join wait time.').format(nick, botconfig.CMD_CHAR))
             var.GOT_IT = False # reset that variable (used in different places)
             # Set join timer
-        if var.JOIN_TIME_LIMIT:
-            t = threading.Timer(var.JOIN_TIME_LIMIT, kill_join, [cli, chan])
-            var.TIMERS['join'] = t
-            t.daemon = True
-            t.start()
+            if var.JOIN_TIME_LIMIT:
+                t = threading.Timer(var.JOIN_TIME_LIMIT, kill_join, [cli, chan])
+                var.TIMERS['join'] = t
+                t.daemon = True
+                t.start()
         elif nick in pl:
             cli.notice(nick, "You're already playing!")
         elif len(pl) >= var.MAX_PLAYERS:
@@ -3481,20 +3481,17 @@ def listroles(cli, nick, chan, rest):
     pl = len(var.list_players()) + len(var.DEAD)
     if pl > 0:
         txt += '{0}: There are \u0002{1}\u0002 playing. '.format(nick, pl)
-
     for i,v in sorted({i:var.ROLES_GUIDE[i] for i in var.ROLES_GUIDE if i is not None}.items()):
-        if (i <= pl):
-            txt += BOLD
-        txt += "[" + str(i) + "] "
-        if (i <= pl):
-            txt += BOLD
+        if old == v:
+            continue;  # nothing new here
+        txt += "{1}[{0}] ".format(str(i), BOLD if i <= pl else "")
         for index, amt in enumerate(v):
             if amt - old[index] != 0:
                 if amt > 1:
                     txt = txt + var.ROLE_INDICES[index] + "({0}), ".format(amt)
                 else:
                     txt = txt + var.ROLE_INDICES[index] + ", "
-        txt = txt[:-2] + " "
+        txt = txt[:-2] + (BOLD if i <= pl else "") + " "
         old = v
     if chan == nick:
         pm(cli, nick, txt)
