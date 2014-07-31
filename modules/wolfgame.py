@@ -1464,7 +1464,7 @@ def update_last_said(cli, nick, chan, rest):
             return
 
         if botconfig.BRANCH_NAME in rest and botconfig.GIT_OWNER in rest and " pushed " in rest:
-            args += ["git@github.com:{0}/{1}.git".format(botconfig.GIT_OWNER, botconfig.BRANCH_NAME), "master"]
+            args += ["http://github.com:{0}/{1}.git".format(botconfig.GIT_OWNER, botconfig.PROJECT_NAME), botconfig.BRANCH_NAME]
         cli.msg(chan, "Pulling commit from Git . . .")
             
 

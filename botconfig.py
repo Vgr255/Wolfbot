@@ -10,7 +10,8 @@ ADMIN_CHAN = "" # logging chan. leave blank to disable logging
 ALT_CHANS = "" # will join all of these channels upon connect if RAW_JOIN in .\settings\wolfgame.py is set to True
 DEV_CHAN = "" # development chan. bot will automatically fetch updates whenever the GitHub bot joins and tells as such. ALLOW_GIT in .\settings\wolfgame.py must be True
 DEV_BOT = "" # github bot's nickname, to which it will check for updates
-BRANCH_NAME = "" # GitHub branch (actually, more like the project name), to look for updates
+PROJECT_NAME = "" # GitHub project name, owned by GIT_OWNER
+BRANCH_NAME = "master" # GitHub branch  to look for updates
 GIT_OWNER  "" # Who pushes commits to master
 SPECIAL_CHAN = "" # special channel for various purposes. leave blank if you don't want the bot to join it
 PERFORM = "" # commands to perform on connect. do NOT put a / or it will not work. syntax: "COMMAND param1 param2 :data to send"
