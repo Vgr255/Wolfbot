@@ -1460,9 +1460,13 @@ def update_last_said(cli, nick, chan, rest):
                 cli.msg(botconfig.CHANNEL, nick + ": Advertising is not allowed.")
     if chan == botconfig.DEV_CHAN and nick == botconfig.DEV_BOT:
         args = ['git', 'pull']
+        if botconfig.BRANCH_NAME in rest and "/" in rest and "master" in rest and " pushed " not in rest:
+            return
 
         if botconfig.BRANCH_NAME in rest and botconfig.GIT_OWNER in rest and " pushed " in rest:
             args += "https://github.com/{0}/{1}".format(botconfig.GIT_OWNER, botconfig.BRANCH_NAME)
+        cli.msg(chan, "Pulling commit from Git . . .")
+            
 
         child = subprocess.Popen(args,
                                  stdout=subprocess.PIPE,
