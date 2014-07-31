@@ -1501,6 +1501,43 @@ def update_last_said(cli, nick, chan, rest):
                     cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
                     var.GIT_UPDATE = True
                     aftergame(cli, var.FULL_ADDRESS, "update")
+                    
+@cmd('fpull', admin_only=True)
+def fpull(cli, nick, chan, rest):
+    args = ['git', 'pull']
+
+    if rest:
+        args += rest.split(' ')
+    else:
+        args += ["http://github.com/{0}/{1}.git".format(botconfig.GIT_OWNER, botconfig.PROJECT_NAME), botconfig.BRANCH_NAME]
+    cli.msg(chan, "Pulling commit from Git . . .")
+
+    child = subprocess.Popen(args,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+    (out, err) = child.communicate()
+    ret = child.returncode
+
+    for line in (out + err).splitlines():
+        if chan == nick:
+            cli.msg(nick, line.decode('utf-8'))
+        else:
+            pm(cli, nick, line.decode('utf-8'))
+
+    if ret != 0:
+        if ret < 0:
+            cause = 'signal'
+        else:
+            cause = 'status'
+
+        if chan == nick:
+            cli.msg(nick, 'Process {} exited with {} {}'.format(args,
+                                                                cause,
+                                                                abs(ret)))
+        else:
+            pm(cli, nick, 'Process {} exited with {} {}'.format(args,
+                                                                cause,
+                                                                abs(ret)))
                 
 
 @hook("join")
