@@ -2808,7 +2808,8 @@ def wrong_window(cli, nick, chan, rest):
 def msg_through_bot(cli, rnick, chan, rest):
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
-        cli.msg(rest, "")
+        params = rest.split()
+        cli.msg(params[0], " ".join(params[1:]))
         if var.LOG_CHAN == True:
             chan_log(cli, rnick, "msg_bot")
         
