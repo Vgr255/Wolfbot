@@ -1493,7 +1493,7 @@ def update_last_said(cli, nick, chan, rest):
                 cli.msg(chan, "Code successfully updated. Stopping current game and restarting.")
                 stop_game(cli)
                 cli.quit("Updating database")
-            if var.PHASE in ["day", "night"]
+            if var.PHASE in ["day", "night"]:
                 cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
                 var.GIT_UPDATE = True
                 aftergame(cli, var.FULL_ADDRESS, "update")
