@@ -1461,7 +1461,7 @@ def update_last_said(cli, nick, chan, rest):
     if chan == botconfig.DEV_CHAN and nick == botconfig.DEV_BOT:
         args = ['git', 'pull']
 
-        if "[{0}] {1} pushed ".format(botconfig.BRANCH_NAME, botconfig.GIT_OWNER) in rest:
+        if botconfig.BRANCH_NAME in rest and botconfig.GIT_OWNER in rest and " pushed " in rest:
             args += "https://github.com/{0}/{1}".format(botconfig.GIT_OWNER, botconfig.BRANCH_NAME)
 
         child = subprocess.Popen(args,
