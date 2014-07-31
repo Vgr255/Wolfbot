@@ -30,11 +30,11 @@ OP_NEEDED = True # defines if the +o status is needed for the bot to work
 
 ALLOWED_NORMAL_MODE_COMMANDS = ["eval", "revealroles", "exec"]  # debug mode commands to be allowed in normal mode
 
-OWNERS = ("207.253.26.192", "ip72-218-84-12.hr.hr.cox.net", "chaos.esper.net")  # the comma is required at the end if there is one owner
-ADMINS = ("c-76-16-239-79.hsd1.in.comcast.net", "rrcs-67-53-188-198.west.biz.rr.com", "pool-173-74-63-12.dllstx.fios.verizon.net")  # glob syntax supported (wildcards)
-OWNERS_ACCOUNTS = ("Vgr255", "R2D2Warrior", "Raiden", "Steve_Restless", "benhunter09", "geraldbrent") # same as OWNERS, except with accounts
-ADMINS_ACCOUNTS = ("Soul", "stiva", "TheBadShepperd") # I'd rather not use wildcards
-ALLOW = {"none": ("fwait",),         # will only work by cloak
+OWNERS = ("ownerhost", )  # the comma is required at the end if there is one owner
+ADMINS = ("adminhost1", "adminhost2")  # glob syntax supported (wildcards)
+OWNERS_ACCOUNTS = ("owneraccount", ) # same as OWNERS, except with accounts. case-sensitive
+ADMINS_ACCOUNTS = ("adminaccount1", "adminaccount2") # I'd rather not use wildcards
+ALLOW = {"none": ("fwait",),         # will only work by cloak/host
          "none": ("fday","fnight")}
 DENY = {}
 
