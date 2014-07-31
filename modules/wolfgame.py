@@ -1140,6 +1140,10 @@ def stop_game(cli, winner = ""):
         iwon = won and plr in var.list_players()  # survived, team won = individual win
                 
         var.update_role_stats(acc, rol, won, iwon)
+        
+    size = len(var.list_players()) + len(var.DEAD)
+    if winner != "": # Only update if not an abnormal game stop
+        var.update_game_stats(size, winner)
     
     reset(cli)
     
