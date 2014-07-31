@@ -183,6 +183,21 @@ def mass_mode(cli, md):
         arg1 = "".join(z[0])
         arg2 = " ".join(z[1])  # + " " + " ".join([x+"!*@*" for x in z[1]])
         cli.mode(botconfig.CHANNEL, arg1, arg2)
+
+def reset_modes_timers(cli):
+    # Reset game timers
+    for x, timr in var.TIMERS.items():
+        timr.cancel()
+    var.TIMERS = {}
+
+    # Reset modes
+    cli.mode(botconfig.CHANNEL, "-m")
+    cmodes = []
+    for plr in var.list_players():
+        cmodes.append(("-v", plr))
+    for deadguy in var.DEAD:
+        cmodes.append(("-q", deadguy+"!*@*"))
+    mass_mode(cli, cmodes)
         
 def pm(cli, target, message):  # message either privmsg or notice, depending on user settings
     if target in var.USERS and var.USERS[target]["cloak"] in var.SIMPLE_NOTIFY: # still need to make it work with the damn ident
