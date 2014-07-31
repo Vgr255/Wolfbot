@@ -1420,7 +1420,7 @@ def reaper(cli, gameid):
         time.sleep(10)
 
 
-@cmd("")  # update last said
+@cmd("")  # update last said + git check
 def update_last_said(cli, nick, chan, rest):
     if chan == botconfig.CHANNEL:
         if var.PHASE not in ("join", "none"):
@@ -1458,13 +1458,34 @@ def update_last_said(cli, nick, chan, rest):
                 
             else:
                 cli.msg(botconfig.CHANNEL, nick + ": Advertising is not allowed.")
+    if chan == botconfig.DEV_CHAN and nick == botconfig.DEV_BOT:
+        args = ['git', 'pull']
+
+        if "[{0}] {1} pushed ".format(botconfig.BRANCH_NAME, botconfig.GIT_OWNER) in rest:
+            args += "https://github.com/{0}/{1}".format(botconfig.GIT_OWNER, botconfig.BRANCH_NAME)
+
+        child = subprocess.Popen(args,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        (out, err) = child.communicate()
+        ret = child.returncode
+
+        for line in (out + err).splitlines():
+            cli.msg(chan, line.decode('utf-8'))
+
+        if ret != 0:
+            if ret < 0:
+                cause = 'signal'
+            else:
+                cause = 'status'
+
+            cli.msg(chan, 'Process {} exited with {} {}'.format(args,
+                                                                cause,
+                                                                abs(ret)))
 
 @hook("join")
 def on_join(cli, raw_nick, chan, acc="*", rname=""):
     nick,m,u,cloak = parse_nick(raw_nick)
-    if chan == botconfig.ALT_CHAN:
-        if u == "webchat":
-            cli.notice(nick, "Hello {0} and welcome to the Brat Team channel.\nIf you need help with Bootleg, send an email to bootleg@dadadata.net\nThank you for using Bootleg. - The Brat Team".format(nick))
     if nick != botconfig.NICK:
         var.IS_ADMIN[nick] = False
         var.IS_OWNER[nick] = False # have everyone in there to avoid errors

@@ -8,7 +8,10 @@ CMD_CHAR = "!"
 CHANGING_HOST_QUIT_MESSAGE = "Changing host"
 ADMIN_CHAN = "" # logging chan. leave blank to disable logging
 ALT_CHANS = "" # will join all of these channels upon connect if RAW_JOIN in .\settings\wolfgame.py is set to True
-ALT_CHAN = "" # channel to warn users upon join if they match a certain pattern. must be in ALT_CHANS as well
+DEV_CHAN = "" # development chan. bot will automatically fetch updates whenever the GitHub bot joins and tells as such. ALLOW_GIT in .\settings\wolfgame.py must be True
+DEV_BOT = "" # github bot's nickname, to which it will check for updates
+BRANCH_NAME = "" # GitHub branch, to look for updates
+GIT_OWNER  "" # Who pushes commits to master
 SPECIAL_CHAN = "" # special channel for various purposes. leave blank if you don't want the bot to join it
 PERFORM = "" # commands to perform on connect. do NOT put a / or it will not work. syntax: "COMMAND param1 param2 :data to send"
 COMMON_HOSTS = ("", "") # hosts that more than one person use; ident@host will be used instead

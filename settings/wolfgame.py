@@ -58,6 +58,7 @@ AUTO_LOG_TOGGLE = True       # automatically toggle logging when an admin gets i
 EXT_PING = ""                # external pinging in the special channel. leave blank to disable it                #
 MAX_ERRORS = 4               # max amount of errors that can happen before the bot quits                         #
 USE_IDENT = False            # defines if should use ident along with host for !ping and similar                 #
+ALLOW_GIT = True             # joins the development channel and automatically fetches commits                   #
                              #####################################################################################
 LOG_FILENAME = ""
 BARE_LOG_FILENAME = ""
