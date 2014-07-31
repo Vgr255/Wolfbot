@@ -1594,7 +1594,12 @@ def goat(cli, rnick, chan, rest):
         var.LOGGER.logMessage("{0}'s goat walks by and {1} {2}.".format(nick, goatact,
                                                                         victim))
         var.GOATED = True
-    
+@cmd("fgoat", raw_nick=True)
+def fgoat(cli, rnick, chan, rest):
+    nick, mode, user, host = parse_nick(rnick)
+    if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
+        var.GOATED = False
+        goat(cli, rnick, chan, rest)
     
 
 @hook("nick")
