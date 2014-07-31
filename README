@@ -1,4 +1,4 @@
 Use Python 3.2 (3.1 doesn't work)
-configure botconfig.py if needed
+configure botconfig.py.example (rename to botconfig.py first)
 if desired, configure settings/wolfgame.py to modify game settings
 run wolfbot.py
