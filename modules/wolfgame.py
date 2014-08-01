@@ -356,8 +356,8 @@ def pinger(cli, rnick, chan, rest):
 
 
     @hook("whoreply", hookid=800)
-    def on_whoreply(cli, server, dunno, chan, dunno1,
-                    cloak, dunno3, user, status, dunno4):
+    def ping_whoreply(cli, server, dunno, chan, dunno1,
+                      cloak, dunno3, user, status, dunno4):
         if not var.PINGING: return
         if user in (botconfig.NICK, nick): return  # Don't ping self.
 
@@ -532,9 +532,9 @@ def unset_bans_akick(cli, rnick, chan, mode, *action):
     if mode == "+b" and "services." in host:
         if nick == "ChanServ" and len(action) == 1:
             ban = action.pop(0)
-            cli.who(chan, "%fn")
+            cli.who(chan, "%nuhaf")
             @hook("whospcrpl", hookid=126)
-            def am_i_op_now(cli, server, you, nick, status):
+            def am_i_op_now(cli, server, you, ident, host, nick, status, account):
                 if you == nick and '@' in status:
                     cli.mode(chan, "-b", ban)
                     cli.msg(chan, "\u0001ACTION resets the trap...\u0001")
