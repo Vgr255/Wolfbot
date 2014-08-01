@@ -137,13 +137,16 @@ LYNCH_MESSAGES = ("The villagers, after much debate, finally decide on lynching 
                   "The villagers drag the poor \u0002{0}\u0002 to the tree on the edge of the village. The poor guy was... a \u0002{1}\u0002.",
                   "The mob drags a protesting \u0002{0}\u0002 to the hanging tree. S/He succumbs to the will of the horde, and is hanged. It is discovered (s)he was a \u0002{1}\u0002.",
                   "Resigned to his/her fate, \u0002{0}\u0002 is led to the gallows. After death, it is discovered (s)he was a \u0002{1}\u0002.")
-RULES = (botconfig.CHANNEL + " channel rules: 1) Be nice to others. 2) Do not share "+
-         "information after death. 3) Do not play with bots or clones. 4) Do not "+
-         "quit unless you need to leave.\n5) No swearing and keep it family-friendly. "+
-         "6) Do not paste messages from the bot during the game. 7) Waiting for timeouts "+
-         "is discouraged. 8) Using anti-idle messages or /whois idle times "+
-	     "\u0002IS\u0002 cheating. 9) If you are unsure whether you can do something "+
-         "or not, ask an operator.")
+RULES = (botconfig.CHANNEL + " channel rules:\n"+
+                             "1) Do not share information after death. "+
+                             "2) Do not play with bots or clones. "+
+                             "3) Do not quit unless you need to leave. "+
+                             "4) Do not paste messages from the bot during the game. "+
+                             "5) Do not ping people unless they have played recently "+
+                             "6) Do not take advantage of a player timing out. "+
+                             "7) Using anti-idle messages or /whois idle times \u0002IS\u0002 cheating. "+
+                             "8) If you are unsure whether you can do something or not, ask an operator. "+
+                             "9) Channel and bot operators have the final word.")
          
 
 is_role = lambda plyr, rol: rol in ROLES and plyr in ROLES[rol]
