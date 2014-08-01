@@ -98,8 +98,6 @@ var.AUTO_LOG_TOGGLED = False
 var.NO_PING = False
 var.AUTO_LOG_TOGGLED = False
 
-var.WOLF_CANNOT_KILL_TRAITOR = True  # Can the wolves kill the traitor?
-
 
 if botconfig.DEBUG_MODE:
     var.NIGHT_LIMIT_WARN = 0
@@ -2485,12 +2483,12 @@ def kill(cli, rnick, rest):
         return
         
     cantkillroles = var.ROLES["wolf"]+var.ROLES["werecrow"]  # The roles you cannot kill
-    if var.WOLF_CANNOT_KILL_TRAITOR:
+    if var.CANT_KILL_TRAITOR:
         cantkillroles += var.ROLES["traitor"]
         
     if victim in cantkillroles:
         pm(cli, nick, "You may only kill villagers, not other wolves{}."
-                      .format(" or traitors" if var.WOLF_CANNOT_KILL_TRAITOR else ""))
+                      .format(" or traitors" if var.CANT_KILL_TRAITOR else ""))
         return
     var.KILLS[nick] = victim
     if var.LOG_CHAN == True:
