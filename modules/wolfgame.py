@@ -388,7 +388,7 @@ def pinger(cli, rnick, chan, rest):
 
         decorators.unhook(HOOKS, 800)
 
-    cli.who(botconfig.CHANNEL)
+    cli.who(botconfig.CHANNEL, "%nuhaf")
 
 @cmd("in", raw_nick=True)
 @pmcmd("in", raw_nick=True)

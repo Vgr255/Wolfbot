@@ -278,9 +278,9 @@ def join(cli, nick, *chan):
         cli.msg(chan, "Auto-logging has been enabled.")
     if nick == botconfig.NICK and chan == botconfig.ADMIN_CHAN:
         settings.TOGGLE_ENABLED = False
-        cli.who(botconfig.ADMIN_CHAN, "%n")
+        cli.who(botconfig.ADMIN_CHAN, "%nuhaf")
         @hook("whospcrpl", hookid=652)
-        def log_toggle_join(cli, server, me, nick):
+        def log_toggle_join(cli, server, me, ident, host, nick, status, account):
             if nick in settings.IS_ADMIN and settings.IS_ADMIN[nick] == True:
                 settings.TOGGLE_ENABLED = True
         @hook("endofwho", hookid=652)
@@ -296,9 +296,9 @@ def part(cli, nick, *chan):
         cli.msg(botconfig.ADMIN_CHAN, "processCommand (b'{0}')part({1})".format(nick, chan))
         if settings.AUTO_LOG_TOGGLE == True:
             settings.DISABLE_AUTO_LOG = True
-            cli.who(botconfig.ADMIN_CHAN, "%n")
+            cli.who(botconfig.ADMIN_CHAN, "%nuhaf")
             @hook("whospcrpl", hookid=652)
-            def log_toggle_part(cli, server, me, nick):
+            def log_toggle_part(cli, server, me, ident, host, nick, status, account):
                 if nick in settings.IS_ADMIN and settings.IS_ADMIN[nick] == True:
                     settings.DISABLE_AUTO_LOG = False
             @hook("endofwho", hookid=652)
@@ -314,9 +314,9 @@ def kick(cli, nick, *rest): # cli, nick, chan, target, reason
         cli.msg(botconfig.ADMIN_CHAN, "processCommand (b'{0}')kick({1})".format(nick, rest))
         if settings.AUTO_LOG_TOGGLE == True:
             settings.DISABLE_AUTO_LOG = True
-            cli.who(botconfig.ADMIN_CHAN, "%n")
+            cli.who(botconfig.ADMIN_CHAN, "%nuhaf")
             @hook("whospcrpl", hookid=652)
-            def log_toggle_kick(cli, server, me, nick):
+            def log_toggle_kick(cli, server, me, ident, host, nick, status, account):
                 if nick in settings.IS_ADMIN and settings.IS_ADMIN[nick] == True:
                     settings.DISABLE_AUTO_LOG = False
             @hook("endofwho", hookid=652)
@@ -338,9 +338,9 @@ def quit(cli, nick, *message):
         cli.msg(botconfig.ADMIN_CHAN, "processCommand (b'{0}')quit({1})".format(nick, msg))
         if settings.AUTO_LOG_TOGGLE == True:
             settings.DISABLE_AUTO_LOG = True
-            cli.who(botconfig.ADMIN_CHAN, "%n")
+            cli.who(botconfig.ADMIN_CHAN, "%nuhaf")
             @hook("whospcrpl", hookid=652)
-            def log_toggle_quit(cli, server, me, nick):
+            def log_toggle_quit(cli, server, me, ident, host, nick, status, account):
                 if nick in settings.IS_ADMIN and settings.IS_ADMIN[nick] == True:
                     settings.DISABLE_AUTO_LOG = False
             @hook("endofwho", hookid=652)
