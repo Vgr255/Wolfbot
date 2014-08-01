@@ -1467,42 +1467,40 @@ def update_last_said(cli, nick, chan, rest):
         args = ['git', 'pull']
 
         if botconfig.BRANCH_NAME in rest and " pushed " in rest and botconfig.PROJECT_NAME in rest:
-            for gitown in botconfig.GIT_OWNER:
-                if gitown in rest:
-                    args += ["http://github.com/{0}/{1}.git".format(botconfig.GIT_OWNER, botconfig.PROJECT_NAME), botconfig.BRANCH_NAME]
-                    cli.msg(chan, "Pulling commit from Git . . .")
-                        
+            args += ["http://github.com/{0}/{1}.git".format(botconfig.GIT_OWNER, botconfig.PROJECT_NAME), botconfig.BRANCH_NAME]
+            cli.msg(chan, "Pulling commit from Git . . .")
+                
 
-                    child = subprocess.Popen(args,
-                                             stdout=subprocess.PIPE,
-                                             stderr=subprocess.PIPE)
-                    (out, err) = child.communicate()
-                    ret = child.returncode
+            child = subprocess.Popen(args,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+            (out, err) = child.communicate()
+            ret = child.returncode
 
-                    for line in (out + err).splitlines():
-                        cli.msg(chan, line.decode('utf-8'))
+            for line in (out + err).splitlines():
+                cli.msg(chan, line.decode('utf-8'))
 
-                    if ret != 0:
-                        if ret < 0:
-                            cause = 'signal'
-                        else:
-                            cause = 'status'
+            if ret != 0:
+                if ret < 0:
+                    cause = 'signal'
+                else:
+                    cause = 'status'
 
-                        cli.msg(chan, 'Process {} exited with {} {}'.format(args,
-                                                                            cause,
-                                                                            abs(ret)))
-                    if ret == 0:
-                        if var.PHASE == "none":
-                            cli.msg(chan, "Code successfully updated. Restarting.")
-                            cli.quit("Updating database")
-                        if var.PHASE == "join":
-                            cli.msg(chan, "Code successfully updated. Stopping current game and restarting.")
-                            stop_game(cli)
-                            cli.quit("Updating database")
-                        if var.PHASE in ["day", "night"]:
-                            cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
-                            var.GIT_UPDATE = True
-                            aftergame(cli, var.FULL_ADDRESS, "update")
+                cli.msg(chan, 'Process {} exited with {} {}'.format(args,
+                                                                    cause,
+                                                                    abs(ret)))
+            if ret == 0:
+                if var.PHASE == "none":
+                    cli.msg(chan, "Code successfully updated. Restarting.")
+                    cli.quit("Updating database")
+                if var.PHASE == "join":
+                    cli.msg(chan, "Code successfully updated. Stopping current game and restarting.")
+                    stop_game(cli)
+                    cli.quit("Updating database")
+                if var.PHASE in ["day", "night"]:
+                    cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
+                    var.GIT_UPDATE = True
+                    aftergame(cli, var.FULL_ADDRESS, "update")
                     
 @cmd('fpull', raw_nick=True)
 def fpull(cli, rnick, chan, rest):
