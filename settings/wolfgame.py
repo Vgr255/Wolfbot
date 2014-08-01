@@ -142,7 +142,7 @@ RULES = (botconfig.CHANNEL + " channel rules:\n"+
                              "2) Do not play with bots or clones. "+
                              "3) Do not quit unless you need to leave. "+
                              "4) Do not paste messages from the bot during the game. "+
-                             "5) Do not ping people unless they have played recently\n"+
+                             "5) Do not ping people unless they have played recently.\n"+
                              "6) Do not take advantage of a player timing out. "+
                              "7) Using anti-idle messages or /whois idle times \u0002IS\u0002 cheating. "+
                              "8) If you are unsure whether you can do something or not, ask an operator. "+
