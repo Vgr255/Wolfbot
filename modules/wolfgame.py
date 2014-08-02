@@ -1588,10 +1588,16 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
             if host in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
                 var.IS_ADMIN[user] = True
                 var.IS_OWNER[user] = True
-            if '@' in status and nick not in var.IS_OP:
-                var.IS_OP.append(user)
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
+            decorators.unhook(HOOKS, 121)
+        cli.who(botconfig.CHANNEL, "%nuhaf")
+        @hook("whospcrpl", hookid=121)
+        def put_ops(cli, server, nick, ident, host, user, status, acc):
+            if '@' in status and user not in var.IS_OP:
+                var.IS_OP.append(user)
+        @hook("endofwho", hookid=121)
+        def unhook_ops(*stuff):
             decorators.unhook(HOOKS, 121)
 
     if cloak in botconfig.ADMINS or cloak in botconfig.OWNERS or acc in botconfig.ADMINS_ACCOUNTS or acc in botconfig.OWNERS_ACCOUNTS:
@@ -1684,8 +1690,9 @@ def on_nick(cli, rnick, nick):
     if prefix in var.IS_OWNER and var.IS_OWNER[prefix] == True:
         var.IS_OWNER[prefix] = False
         var.IS_OWNER[nick] = True
-    if prefix in var.IS_OP and nick not in var.IS_OP:
+    if prefix in var.IS_OP:
         var.IS_OP.remove(prefix)
+    if nick not in var.IS_OP:
         var.IS_OP.append(nick)
 
 
@@ -1892,18 +1899,17 @@ def mode(cli, nick, chan, mode, *params):
         @hook("whospcrpl", hookid=267)
         def check_for_ops(cli, server, you, ident, host, user, status, account): # user = nick
             if user in var.IS_OP and '@' not in status:
-                if nick != you:
-                    var.IS_OP.remove(user)
-                if nick == you and user not in var.WAS_OP:
-                    var.IS_OP.remove(user)
-                    var.WAS_OP.append(user)
+                var.IS_OP.remove(user)
+            if nick == you and user not in var.WAS_OP and "@" not in status:
+                var.WAS_OP.append(user)
         
     if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
         cli.who(botconfig.CHANNEL, "%nuhaf")
         @hook("whospcrpl", hookid=267)
         def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
-            if user in var.WAS_OP and "@" in status and user not in var.IS_OP:
+            if user in var.WAS_OP and "@" in status:
                 var.WAS_OP.remove(user)
+            if user not in var.IS_OP and "@" in status
                 var.IS_OP.append(user)
     decorators.unhook(HOOKS, 267)
 
