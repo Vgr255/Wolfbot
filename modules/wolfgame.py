@@ -4082,7 +4082,7 @@ def aftergame(cli, rawnick, rest):
                        "after this game by \02{1}\02.").format(cmd, nick))
     elif var.GIT_UPDATE == True:
         cli.msg(chan, "\u0002The bot will automatically restart once this game is over.\u0002")
-    var.AFTER_FLASTGAME = do_action
+    var.AFTER_FLASTGAME = do_action()
 
     
 
