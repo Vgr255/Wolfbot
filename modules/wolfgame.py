@@ -1521,10 +1521,7 @@ def fpull(cli, rnick, chan, rest):
         ret = child.returncode
 
         for line in (out + err).splitlines():
-            if chan == nick:
-                cli.msg(nick, line.decode('utf-8'))
-            else:
-                pm(cli, nick, line.decode('utf-8'))
+            cli.msg(chan, line.decode('utf-8'))
 
         if ret != 0:
             if ret < 0:
@@ -1532,15 +1529,10 @@ def fpull(cli, rnick, chan, rest):
             else:
                 cause = 'status'
 
-            if chan == nick:
-                cli.msg(nick, 'Process {} exited with {} {}'.format(args,
+            cli.msg(chan, 'Process {} exited with {} {}'.format(args,
                                                                     cause,
                                                                     abs(ret)))
-            else:
-                pm(cli, nick, 'Process {} exited with {} {}'.format(args,
-                                                                    cause,
-                                                                    abs(ret)))
-                
+
 
 @hook("join")
 def on_join(cli, raw_nick, chan, acc="*", rname=""):
