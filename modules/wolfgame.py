@@ -73,6 +73,7 @@ var.TO_PING = []
 var.CONNECT_OK = False
 var.DCED_GRACE = []
 var.GIT_UPDATE = False
+var.MASS_MODES_CONNECT = False
 
 var.ORIGINAL_SETTINGS = {}
 
@@ -161,9 +162,10 @@ def connect_callback(cli):
         
                 @hook("quietlistend", 294)
                 def on_quietlist_end(cli, svr, nick, chan, *etc):
-                    if chan == botconfig.CHANNEL:
+                    if chan == botconfig.CHANNEL and var.MASS_MODES_CONNECT == False:
                         decorators.unhook(HOOKS, 294)
                         mass_mode(cli, cmodes)
+                        var.MASS_MODES_CONNECT = True
                 cli.mode(botconfig.CHANNEL, "q")  # unquiet all
                 cli.mode(botconfig.CHANNEL, "-m")  # remove -m mode from channel
             elif modeaction == "+o" and target == botconfig.NICK and var.PHASE != "none":
@@ -1276,12 +1278,12 @@ def del_player(cli, nick, forced_death = False, devoice = True):
         ret = True
         if var.PHASE == "join":
             # Died during the joining process as a person
-            mass_mode(cli, cmode)
-            return not chk_win(cli)
             if nick in var.WAS_OP and nick not in var.IS_OP:
                 var.WAS_OP.remove(nick)
                 var.IS_OP.append(nick)
-                cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
+                cmode.append(("+o", nick))
+            mass_mode(cli, cmode)
+            return not chk_win(cli)
         if var.PHASE != "join" and ret:
             # Died during the game, so quiet!
             if not is_fake_nick(nick):
