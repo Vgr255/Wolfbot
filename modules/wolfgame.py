@@ -1554,7 +1554,7 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
                 var.IS_ADMIN[user] = True
                 var.IS_OWNER[user] = True
             if '@' in status:
-                var.IS_OP.append[user]
+                var.IS_OP.append(user)
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
             decorators.unhook(HOOKS, 121)
@@ -1650,8 +1650,8 @@ def on_nick(cli, rnick, nick):
         var.IS_OWNER[prefix] = False
         var.IS_OWNER[nick] = True
     if prefix in var.IS_OP:
-        var.IS_OP.remove[prefix]
-        var.IS_OP.append[nick]
+        var.IS_OP.remove(prefix)
+        var.IS_OP.append(nick)
 
 
     if prefix in var.USERS:
@@ -1858,10 +1858,10 @@ def mode(cli, nick, chan, mode, *params):
         def check_for_ops(cli, server, you, ident, host, user, status, account): # user = nick
             if user in var.IS_OP and '@' not in status:
                 if nick != you:
-                    var.IS_OP.remove[user]
+                    var.IS_OP.remove(user)
                 if nick == you:
-                    var.IS_OP.remove[user]
-                    var.WAS_OP.append[user]
+                    var.IS_OP.remove(user)
+                    var.WAS_OP.append(user)
         
     if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
         
