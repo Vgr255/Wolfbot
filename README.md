@@ -14,10 +14,12 @@
 
 If looking to use the auto-update feature, you need the Git shell.
 
-On Windows, you can download the Git shell at http://git-scm.com/download/win
-On Ubuntu/Debian systems, `apt-get install git` then `git clone http://github.com/Vgr255/Wolfbot.git`
-Mac users should install Homebrew, then can use `brew install git` in a terminal.
+* On Windows, you can download the Git shell at http://git-scm.com/download/win
+* On Ubuntu/Debian systems, `apt-get install git` then `git clone http://github.com/Vgr255/Wolfbot.git`
+* Mac users should install Homebrew, then can use `brew install git` in a terminal.
 
-You don't need to do `git pull` as the bot will do that as long as git is installed.  
-You can clone the repository, or fork it. The IRC service needs to be enabled.  
+You don't need to do `git pull` as the bot will do that as long as git is installed.
+
+You can clone the repository, or fork it. The IRC service needs to be enabled.
+
 Whenever GitHub's commit IRC bot joins and says there's an update, it downloads it, provided ALLOW_GIT is set to True in `.\settings\wolfgame.py`
