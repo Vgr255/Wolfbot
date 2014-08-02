@@ -10,13 +10,13 @@ MAXIMUM_WAITED = 3           # limit for amount of !wait's                      
 STATS_RATE_LIMIT = 15        # time between two !stats                                                           #
 VOTES_RATE_LIMIT = 15        # time between two !votes                                                           #
 ADMINS_RATE_LIMIT = 300      # time between two !admins                                                          #
-GSTATS_RATE_LIMIT = 30       # time to wait for each !gamestats                                                  #
-PSTATS_RATE_LIMIT = 30       # time to wait for each !player                                                     #
-TIME_RATE_LIMIT = 60         # time to wait for each !time                                                       #
-SHOTS_MULTIPLIER = .12       # ceil(shots_multiplier * len_players) = bullets given                              #
+GSTATS_RATE_LIMIT = 0        # time to wait for each !gamestats                                                  #
+PSTATS_RATE_LIMIT = 0        # time to wait for each !player                                                     #
+TIME_RATE_LIMIT = 30         # time to wait for each !time                                                       #
+SHOTS_MULTIPLIER = .16       # ceil(shots_multiplier * len_players) = bullets given                              #
 MIN_PLAYERS = 4              # minimum amount of players needed to start a game (kind of unusued ...?)           #
 MAX_PLAYERS = 30             # maximum amount of players allowed                                                 #
-DRUNK_SHOTS_MULTIPLIER = 3   # drunk gets mor bullets                                                            #
+DRUNK_SHOTS_MULTIPLIER = 3   # drunk gets more bullets                                                           #
 NIGHT_TIME_WARN = 90         # should be less than NIGHT_TIME_LIMIT                                              #
 NIGHT_TIME_LIMIT = 120       # night ends after x seconds (default is 120)                                       #
 DAY_TIME_LIMIT_WARN = 480    # warns before the day changes                                                      #
