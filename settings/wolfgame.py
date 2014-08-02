@@ -60,6 +60,7 @@ EXT_PING = ""                # external pinging in the special channel. leave bl
 MAX_ERRORS = 4               # max amount of errors that can happen before the bot quits                         #
 USE_IDENT = False            # defines if should use ident along with host for !ping and similar                 #
 ALLOW_GIT = True             # joins the development channel and automatically fetches commits                   #
+AUTO_OP_DEOP = True          # determines if bot ops and deops chanops on start and endgame                      #
                              #####################################################################################
 LOG_FILENAME = ""
 BARE_LOG_FILENAME = ""

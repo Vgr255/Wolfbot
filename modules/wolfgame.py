@@ -51,6 +51,8 @@ var.LAST_TIME = None
 
 var.IS_ADMIN = {}
 var.IS_OWNER = {}
+var.IS_OP = []
+var.WAS_OP = []
 
 var.USERS = {}
 
@@ -96,7 +98,7 @@ var.WHO_HOST = {}
 var.IDLE_HOST = {}
 var.AUTO_LOG_TOGGLED = False
 var.NO_PING = False
-var.AUTO_LOG_TOGGLED = False
+var.AUTO_TOGGLED_LOG = False
 
 
 if botconfig.DEBUG_MODE:
@@ -227,7 +229,17 @@ def reset(cli):
     for plr in var.list_players():
         cmodes.append(("-v", plr))
     for deadguy in var.DEAD:
-       cmodes.append(("-q", deadguy+"!*@*"))
+        cmodes.append(("-q", deadguy+"!*@*"))
+    for aop in var.list_players():
+        if aop in var.WAS_OP:
+            var.WAS_OP.remove(aop)
+            var.IS_OP.append(aop)
+            cmodes.append(("+o", aop))
+    for dop in var.DEAD:
+        if dop in var.WAS_OP:
+            var.WAS_OP.remove(dop)
+            var.IS_OP.append(dop)
+            cmodes.append(("+o", dop))
     mass_mode(cli, cmodes)
     var.DEAD = []
     var.NO_LYNCH = []
@@ -281,14 +293,14 @@ def toggle_logging(cli, rnick, chan, rest):
                 chan_log(cli, rnick, "disable_auto_toggle")
                 cli.msg(chan, "Automatic logging toggle has been disabled.")
                 cli.msg(botconfig.ADMIN_CHAN, "Automatic logging toggle is now \u0002off\u0002.")
-                var.AUTO_LOG_TOGGLED = True
+                var.AUTO_TOGGLED_LOG = True
             return
         if var.LOG_CHAN == False:
             var.LOG_CHAN = True
             chan_log(cli, rnick, "enable_logging")
             cli.msg(chan, "Logging has now been enabled by \u0002{0}\u0002".format(nick))
             cli.msg(botconfig.ADMIN_CHAN, "Logging is now \u0002on\u0002")
-            if var.AUTO_LOG_TOGGLE == False and var.AUTO_LOG_TOGGLED == True:
+            if var.AUTO_LOG_TOGGLE == False and var.AUTO_TOGGLED_LOG == True:
                 var.AUTO_LOG_TOGGLE == True
                 chan_log(cli, rnick, "enable_auto_toggle")
                 cli.msg(chan, "Automatic logging toggle has been enabled.")
@@ -579,10 +591,13 @@ def join(cli, rnick, chan, rest):
                 t.start()
         elif nick in pl:
             cli.notice(nick, "You're already playing!")
+            return
         elif len(pl) >= var.MAX_PLAYERS:
             cli.notice(nick, "Too many players!  Try again next time.")
+            return
         elif var.PHASE != "join":
             cli.notice(nick, "Sorry but the game is already running.  Try again next time.")
+            return
         else:
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
@@ -591,6 +606,10 @@ def join(cli, rnick, chan, rest):
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
         
             var.LAST_STATS = None # reset
+        if nick in var.IS_OP and var.AUTO_OP_DEOP == True:
+            cli.mode(botconfig.CHANNEL, "-o {0}".format(nick))
+            var.IS_OP.remove(nick)
+            var.WAS_OP.append(nick)
             
 def kill_join(cli, chan):
     pl = var.list_players()
@@ -605,6 +624,11 @@ def kill_join(cli, chan):
     if var.LOG_CHAN == True:
         chan_log(cli, var.FULL_ADDRESS, "cancel_game")
     var.LOGGER.logMessage('Game canceled.')
+    for nick in pl:
+        if nick in var.WAS_OP:
+            var.WAS_OP.remove(nick)
+            var.IS_OP.append(nick)
+            cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
 
 
 @cmd("fjoin", raw_nick=True)
@@ -1248,6 +1272,10 @@ def del_player(cli, nick, forced_death = False, devoice = True):
             # Died during the joining process as a person
             mass_mode(cli, cmode)
             return not chk_win(cli)
+            if nick in var.WAS_OP:
+                var.WAS_OP.remove(nick)
+                var.IS_OP.append(nick)
+                cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
         if var.PHASE != "join" and ret:
             # Died during the game, so quiet!
             if not is_fake_nick(nick):
@@ -1289,7 +1317,11 @@ def del_player(cli, nick, forced_death = False, devoice = True):
             chk_decision(cli)
         elif var.PHASE == "night" and ret:
             chk_nightdone(cli)
-        return ret  
+        return ret 
+    if nick in var.WAS_OP:
+        var.WAS_OP.remove(nick)
+        var.IS_OP.append(nick)
+        cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
 
 
 def reaper(cli, gameid):
@@ -1533,7 +1565,6 @@ def fpull(cli, rnick, chan, rest):
                                                                     cause,
                                                                     abs(ret)))
 
-
 @hook("join")
 def on_join(cli, raw_nick, chan, acc="*", rname=""):
     nick,m,u,cloak = parse_nick(raw_nick)
@@ -1551,6 +1582,8 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
             if host in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
                 var.IS_ADMIN[user] = True
                 var.IS_OWNER[user] = True
+            if '@' in status:
+                var.IS_OP.append(user)
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
             decorators.unhook(HOOKS, 121)
@@ -1637,14 +1670,18 @@ def fgoat(cli, rnick, chan, rest):
 def on_nick(cli, rnick, nick):
     prefix,u,m,cloak = parse_nick(rnick)
     chan = botconfig.CHANNEL
+    var.IS_ADMIN[nick] = False
+    var.IS_OWNER[nick] = False
     if prefix in var.IS_ADMIN and var.IS_ADMIN[prefix] == True:
         var.IS_ADMIN[prefix] = False
         var.IS_ADMIN[nick] = True
     if prefix in var.IS_OWNER and var.IS_OWNER[prefix] == True:
         var.IS_OWNER[prefix] = False
         var.IS_OWNER[nick] = True
-    else:
-        var.IS_ADMIN[nick] = False
+    if prefix in var.IS_OP:
+        var.IS_OP.remove(prefix)
+        var.IS_OP.append(nick)
+
 
     if prefix in var.USERS:
         var.USERS[nick] = var.USERS.pop(prefix)
@@ -1833,8 +1870,8 @@ def mode(cli, nick, chan, mode, *params):
     if '-' in mode and 'o' in mode and chan == botconfig.CHANNEL:
         cli.send('whois', botconfig.NICK)
         @hook("whoischannels", hookid=267)
-        def is_not_op_or_just_me(cli, server, you, nick, chans): # check if the bot is op in the channel
-            if nick == you: # just make sure it's the right one
+        def is_not_op_or_just_me(cli, server, you, user, chans): # check if the bot is op in the channel
+            if user == you: # just make sure it's the right one
                 if botconfig.CHANNEL in chans:
                     if "@{0}".format(botconfig.CHANNEL) in chans:
                         return
@@ -1845,7 +1882,24 @@ def mode(cli, nick, chan, mode, *params):
                             stop_game(cli)
                             reset(cli)
                             cli.quit("An error has been encountered")
-            decorators.unhook(HOOKS, 267)
+        cli.who(botconfig.CHANNEL, "%nuhaf")
+        @hook("whospcrpl", hookid=267)
+        def check_for_ops(cli, server, you, ident, host, user, status, account): # user = nick
+            if user in var.IS_OP and '@' not in status:
+                if nick != you:
+                    var.IS_OP.remove(user)
+                if nick == you:
+                    var.IS_OP.remove(user)
+                    var.WAS_OP.append(user)
+        
+    if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
+        cli.who(botconfig.CHANNEL, "%nuhaf")
+        @hook("whospcrpl", hookid=267)
+        def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
+            if user in var.WAS_OP and "@" in status:
+                var.WAS_OP.remove(user)
+                var.IS_OP.append(user)
+    decorators.unhook(HOOKS, 267)
 
 def begin_day(cli):
     chan = botconfig.CHANNEL
