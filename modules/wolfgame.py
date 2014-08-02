@@ -1535,7 +1535,6 @@ def fpull(cli, rnick, chan, rest):
                                                                     cause,
                                                                     abs(ret)))
 
-
 @hook("join")
 def on_join(cli, raw_nick, chan, acc="*", rname=""):
     nick,m,u,cloak = parse_nick(raw_nick)
