@@ -1272,6 +1272,10 @@ def del_player(cli, nick, forced_death = False, devoice = True):
             # Died during the joining process as a person
             mass_mode(cli, cmode)
             return not chk_win(cli)
+            if nick in var.WAS_OP:
+                var.WAS_OP.remove(nick)
+                var.IS_OP.append(nick)
+                cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
         if var.PHASE != "join" and ret:
             # Died during the game, so quiet!
             if not is_fake_nick(nick):
