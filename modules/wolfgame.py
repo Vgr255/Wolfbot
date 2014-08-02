@@ -254,6 +254,14 @@ def reset(cli):
     dict.clear(var.PLAYERS)
     dict.clear(var.DCED_PLAYERS)
     dict.clear(var.DISCONNECTED)
+    
+    if var.AFTER_FLASTGAME:
+        var.AFTER_FLASTGAME()
+        var.AFTER_FLASTGAME = None
+    if var.ADMIN_TO_PING:  # It was an flastgame
+        cli.msg(chan, "PING! " + var.ADMIN_TO_PING)
+        var.ADMIN_TO_PING = None
+    
 
 def make_stasis(nick, penalty):
     try:
@@ -1176,14 +1184,6 @@ def stop_game(cli, winner = ""):
         var.update_game_stats(size, winner)
     
     reset(cli)
-    
-    # This must be after reset(cli)
-    if var.AFTER_FLASTGAME:
-        var.AFTER_FLASTGAME()
-        var.AFTER_FLASTGAME = None
-    if var.ADMIN_TO_PING:  # It was an flastgame
-        cli.msg(chan, "PING! " + var.ADMIN_TO_PING)
-        var.ADMIN_TO_PING = None
     
     return True                     
                      
@@ -4082,7 +4082,7 @@ def aftergame(cli, rawnick, rest):
                        "after this game by \02{1}\02.").format(cmd, nick))
     elif var.GIT_UPDATE == True:
         cli.msg(chan, "\u0002The bot will automatically restart once this game is over.\u0002")
-    var.AFTER_FLASTGAME = do_action()
+    var.AFTER_FLASTGAME = do_action
 
     
 
