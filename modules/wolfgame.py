@@ -1909,7 +1909,7 @@ def mode(cli, nick, chan, mode, *params):
         def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
             if user in var.WAS_OP and "@" in status:
                 var.WAS_OP.remove(user)
-            if user not in var.IS_OP and "@" in status
+            if user not in var.IS_OP and "@" in status:
                 var.IS_OP.append(user)
     decorators.unhook(HOOKS, 267)
 
