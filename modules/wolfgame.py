@@ -127,7 +127,7 @@ def connect_callback(cli):
             cmodes.append(("-q", quieted))
 
     @hook("whospcrpl", hookid=294)
-    def on_whoreply(cli, server, nick, ident, cloak, user, status, acc):
+    def on_whoreply(cli, server, you, chan, ident, cloak, user, status, acc):
         if user in var.USERS: return  # Don't add someone who is already there
         if user == botconfig.NICK:
             cli.nickname = user
@@ -136,7 +136,7 @@ def connect_callback(cli):
             var.FULL_ADDRESS = "{0}!{1}@{2}".format(user, ident, cloak)
         if acc == "0":
             acc = "*"
-        if "+" in status and user not in to_be_devoiced:
+        if "+" in status and user not in to_be_devoiced and chan == botconfig.CHANNEL:
             to_be_devoiced.append(user)
         var.USERS[user] = dict(cloak=cloak,account=acc)
         var.IS_OWNER[user] = False
@@ -145,7 +145,7 @@ def connect_callback(cli):
             var.IS_ADMIN[user] = True
         if cloak in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
             var.IS_OWNER[user] = True
-        if "@" in status and user not in var.IS_OP:
+        if "@" in status and user not in var.IS_OP and chan == botconfig.CHANNEL:
             var.IS_OP.append(user)
        
     @hook("endofwho", hookid=294)
@@ -172,7 +172,7 @@ def connect_callback(cli):
                 decorators.unhook(HOOKS, 294)  # forget about it
 
 
-    cli.who(botconfig.CHANNEL, "%nuhaf")
+    cli.who(botconfig.CHANNEL, "%nuchaf")
 
 
 
@@ -380,10 +380,9 @@ def pinger(cli, rnick, chan, rest):
 
 
     @hook("whoreply", hookid=800)
-    def ping_whoreply(cli, server, dunno, chan, dunno1,
-                      cloak, dunno3, user, status, dunno4):
+    def ping_whoreply(cli, server, you, chan, ident, cloak, user, status, acc):
         if not var.PINGING: return
-        if user in (botconfig.NICK, nick): return  # Don't ping self.
+        if user in (botconfig.NICK, you): return  # Don't ping self.
 
         if (all((not botconfig.REVERSE_PING,
                  'G' not in status,  # not /away
@@ -412,7 +411,7 @@ def pinger(cli, rnick, chan, rest):
 
         decorators.unhook(HOOKS, 800)
 
-    cli.who(botconfig.CHANNEL, "%nuhaf")
+    cli.who(botconfig.CHANNEL, "%nuchaf")
 
 @cmd("in", raw_nick=True)
 @pmcmd("in", raw_nick=True)
@@ -556,9 +555,9 @@ def unset_bans_akick(cli, rnick, chan, mode, *action):
     if mode == "+b" and "services." in host:
         if nick == "ChanServ" and len(action) == 1:
             ban = action.pop(0)
-            cli.who(chan, "%nuhaf")
+            cli.who(chan, "%nuchaf")
             @hook("whospcrpl", hookid=126)
-            def am_i_op_now(cli, server, you, ident, host, nick, status, account):
+            def am_i_op_now(cli, server, you, chan, ident, host, nick, status, account):
                 if you == nick and '@' in status:
                     cli.mode(chan, "-b", ban)
                     cli.msg(chan, "\u0001ACTION resets the trap...\u0001")
@@ -767,10 +766,10 @@ def on_kicked(cli, nick, chan, victim, reason):
         elif victim in var.IS_ADMIN and var.IS_ADMIN[victim] == True:
             var.IS_ADMIN[victim] = False # make sure no abuse can be made (it will be set back on join anyway)
             var.IS_OWNER[victim] = False # no need to check if True or False, as all owners are admins
-    if victim in var.IS_OP:
-        var.IS_OP.remove(victim)
-    if victim in var.WAS_OP:
-        var.WAS_OP.remove(victim)
+        if victim in var.IS_OP:
+            var.IS_OP.remove(victim)
+        if victim in var.WAS_OP:
+            var.WAS_OP.remove(victim)
 
 
 @hook("account")
@@ -1379,9 +1378,9 @@ def reaper(cli, gameid):
                 x = [a for a in to_warn if a in pl]
                 if x:
                     if var.LOG_CHAN == True:
-                        cli.who(botconfig.CHANNEL, "%nuhaf")
+                        cli.who(botconfig.CHANNEL, "%nuchaf")
                         @hook("whospcrpl", hookid=451)
-                        def who_fetch_host(cli, server, you, ident, host, nick, status, account):
+                        def who_fetch_host(cli, server, you, chan, ident, host, nick, status, account):
                             if nick in x:
                                 var.WHO_HOST[nick] = "{0}!{1}@{2}".format(nick, ident, host)
                                 chan_log(cli, var.WHO_HOST[nick], "idle_warn")
@@ -1580,9 +1579,9 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
         var.IS_ADMIN[nick] = False
         var.IS_OWNER[nick] = False # have everyone in there to avoid errors
     if nick == botconfig.NICK:
-        cli.who(chan, "%nuhaf")
+        cli.who(chan, "%nuchaf")
         @hook("whospcrpl", hookid=121)
-        def put_the_admins(cli, server, nick, ident, host, user, status, acc): # user is the nickname
+        def put_the_admins(cli, server, nick, chan, ident, host, user, status, acc): # user is the nickname
             var.IS_ADMIN[user] = False
             var.IS_OWNER[user] = False
             if host in botconfig.ADMINS or acc in botconfig.ADMINS_ACCOUNTS:
@@ -1593,10 +1592,10 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
             decorators.unhook(HOOKS, 121)
-        cli.who(botconfig.CHANNEL, "%nuhaf")
+        cli.who(botconfig.CHANNEL, "%nuchaf")
         @hook("whospcrpl", hookid=121)
-        def put_ops(cli, server, nick, ident, host, user, status, acc):
-            if '@' in status and user not in var.IS_OP:
+        def put_ops(cli, server, nick, chan, ident, host, user, status, acc):
+            if '@' in status and user not in var.IS_OP and chan == botconfig.CHANNEL:
                 var.IS_OP.append(user)
         @hook("endofwho", hookid=121)
         def unhook_ops(*stuff):
@@ -1897,21 +1896,21 @@ def mode(cli, nick, chan, mode, *params):
                             stop_game(cli)
                             reset(cli)
                             cli.quit("An error has been encountered")
-        cli.who(botconfig.CHANNEL, "%nuhaf")
+        cli.who(botconfig.CHANNEL, "%nuchaf")
         @hook("whospcrpl", hookid=267)
-        def check_for_ops(cli, server, you, ident, host, user, status, account): # user = nick
-            if user in var.IS_OP and '@' not in status:
+        def check_for_ops(cli, server, you, chanw, ident, host, user, status, account): # user = nick
+            if user in var.IS_OP and '@' not in status and chanw == botconfig.CHANNEL:
                 var.IS_OP.remove(user)
-            if nick == you and user not in var.WAS_OP and "@" not in status:
+            if nick == you and user not in var.WAS_OP and "@" not in status and chanw == botconfig.CHANNEL:
                 var.WAS_OP.append(user)
         
     if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
-        cli.who(botconfig.CHANNEL, "%nuhaf")
+        cli.who(botconfig.CHANNEL, "%nuchaf")
         @hook("whospcrpl", hookid=267)
-        def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
-            if user in var.WAS_OP and "@" in status:
+        def check_new_ops(cli, server, you, chany, ident, host, user, status, account): # user = nick
+            if user in var.WAS_OP and "@" in status and chany == botconfig.CHANNEL:
                 var.WAS_OP.remove(user)
-            if user not in var.IS_OP and "@" in status:
+            if user not in var.IS_OP and "@" in status and chany == botconfig.CHANNEL:
                 var.IS_OP.append(user)
     decorators.unhook(HOOKS, 267)
 
@@ -3124,9 +3123,9 @@ def transition_night(cli):
                 pm(cli, wolf, 'Also, if you PM me, your message will be relayed to other wolves.')
         else:
             if var.LOG_CHAN == True:
-                cli.who(botconfig.CHANNEL, "%nuhaf")
+                cli.who(botconfig.CHANNEL, "%nuchaf")
                 @hook("whospcrpl", hookid=646)
-                def simple_call(cli, server, you, ident, host, nick, status, account):
+                def simple_call(cli, server, you, chan, ident, host, nick, status, account):
                     if nick == wolf:
                         woffle = "{0}!{1}@{2}".format(nick, ident, host)
                         chan_log(cli, woffle, "simple_{0}".format(var.get_role(wolf)))
