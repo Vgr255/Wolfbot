@@ -56,7 +56,7 @@ RAW_JOIN = True              # allow to join other chans than the default one   
 LOG_CHAN = False             # logs activity in botconfig.ADMIN_CHAN                                             #
 LOG_AUTO_TOGGLE = True       # automatically disables logging if there are too many players                      #
 AUTO_LOG_TOGGLE = False      # automatically toggle logging when an admin gets in the admin_chan                 #
-MINIMALIST_LOGGING = True    # only displays sensible commands. only useful if LOG_CHAN = False                  #
+MINIMALIST_LOG = True        # only displays sensible commands. only useful if LOG_CHAN = False                  #
 EXT_PING = ""                # external pinging in the special channel. leave blank to disable it                #
 MAX_ERRORS = 4               # max amount of errors that can happen before the bot quits                         #
 USE_IDENT = False            # defines if should use ident along with host for !ping and similar                 #

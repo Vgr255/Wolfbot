@@ -154,7 +154,7 @@ def connect_callback(cli):
         cli.join(botconfig.CHANNEL)
         if settings.AUTO_OP_FLAG == False:
             cli.msg("ChanServ", "op "+botconfig.CHANNEL)
-        if settings.LOG_CHAN == True:
+        if settings.LOG_CHAN == True or settings.MINIMALIST_LOG == True:
             cli.join(botconfig.ADMIN_CHAN)
             chan = botconfig.ADMIN_CHAN
         if settings.LOG_CHAN == False:
