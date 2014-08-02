@@ -1693,8 +1693,8 @@ def on_nick(cli, rnick, nick):
         var.IS_OWNER[nick] = True
     if prefix in var.IS_OP:
         var.IS_OP.remove(prefix)
-    if nick not in var.IS_OP:
-        var.IS_OP.append(nick)
+        if nick not in var.IS_OP:
+            var.IS_OP.append(nick)
 
 
     if prefix in var.USERS:
