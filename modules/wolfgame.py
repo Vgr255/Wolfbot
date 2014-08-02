@@ -229,7 +229,17 @@ def reset(cli):
     for plr in var.list_players():
         cmodes.append(("-v", plr))
     for deadguy in var.DEAD:
-       cmodes.append(("-q", deadguy+"!*@*"))
+        cmodes.append(("-q", deadguy+"!*@*"))
+    for aop in var.list_players():
+        if aop in var.WAS_OP:
+            var.WAS_OP.remove(aop)
+            var.IS_OP.append(aop)
+            cmodes.append(("+o", aop))
+    for dop in var.DEAD:
+        if dop in var.WAS_OP:
+            var.WAS_OP.remove(dop)
+            var.IS_OP.append(dop)
+            cmodes.append(("+o", dop))
     mass_mode(cli, cmodes)
     var.DEAD = []
     var.NO_LYNCH = []
@@ -581,10 +591,13 @@ def join(cli, rnick, chan, rest):
                 t.start()
         elif nick in pl:
             cli.notice(nick, "You're already playing!")
+            return
         elif len(pl) >= var.MAX_PLAYERS:
             cli.notice(nick, "Too many players!  Try again next time.")
+            return
         elif var.PHASE != "join":
             cli.notice(nick, "Sorry but the game is already running.  Try again next time.")
+            return
         else:
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
@@ -593,6 +606,10 @@ def join(cli, rnick, chan, rest):
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
         
             var.LAST_STATS = None # reset
+        if nick in var.IS_OP and var.AUTO_OP_DEOP == True:
+            cli.mode(botconfig.CHANNEL, "-o {0}".format(nick))
+            var.IS_OP.remove(nick)
+            var.WAS_OP.append(nick)
             
 def kill_join(cli, chan):
     pl = var.list_players()
@@ -607,6 +624,11 @@ def kill_join(cli, chan):
     if var.LOG_CHAN == True:
         chan_log(cli, var.FULL_ADDRESS, "cancel_game")
     var.LOGGER.logMessage('Game canceled.')
+    for nick in pl:
+        if nick in var.WAS_OP:
+            var.WAS_OP.remove(nick)
+            var.IS_OP.append(nick)
+            cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
 
 
 @cmd("fjoin", raw_nick=True)
@@ -1291,7 +1313,11 @@ def del_player(cli, nick, forced_death = False, devoice = True):
             chk_decision(cli)
         elif var.PHASE == "night" and ret:
             chk_nightdone(cli)
-        return ret  
+        return ret 
+    if nick in var.WAS_OP:
+        var.WAS_OP.remove(nick)
+        var.IS_OP.append(nick)
+        cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
 
 
 def reaper(cli, gameid):
@@ -1863,8 +1889,13 @@ def mode(cli, nick, chan, mode, *params):
                     var.WAS_OP.append(user)
         
     if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
-        
-            decorators.unhook(HOOKS, 267)
+        cli.who(botconfig.CHANNEL, "%nuhaf")
+        @hook("whospcrpl", hookid=267)
+        def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
+            if user in var.WAS_OP and "@" in status:
+                var.WAS_OP.remove(user)
+                var.IS_OP.append(user)
+    decorators.unhook(HOOKS, 267)
 
 def begin_day(cli):
     chan = botconfig.CHANNEL
