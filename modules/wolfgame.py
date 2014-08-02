@@ -51,6 +51,8 @@ var.LAST_TIME = None
 
 var.IS_ADMIN = {}
 var.IS_OWNER = {}
+var.IS_OP = []
+var.WAS_OP = []
 
 var.USERS = {}
 
@@ -1551,6 +1553,8 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
             if host in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
                 var.IS_ADMIN[user] = True
                 var.IS_OWNER[user] = True
+            if '@' in status:
+                var.IS_OP.append[user]
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
             decorators.unhook(HOOKS, 121)
@@ -1637,14 +1641,18 @@ def fgoat(cli, rnick, chan, rest):
 def on_nick(cli, rnick, nick):
     prefix,u,m,cloak = parse_nick(rnick)
     chan = botconfig.CHANNEL
+    var.IS_ADMIN[nick] = False
+    var.IS_OWNER[nick] = False
     if prefix in var.IS_ADMIN and var.IS_ADMIN[prefix] == True:
         var.IS_ADMIN[prefix] = False
         var.IS_ADMIN[nick] = True
     if prefix in var.IS_OWNER and var.IS_OWNER[prefix] == True:
         var.IS_OWNER[prefix] = False
         var.IS_OWNER[nick] = True
-    else:
-        var.IS_ADMIN[nick] = False
+    if prefix in var.IS_OP:
+        var.IS_OP.remove[prefix]
+        var.IS_OP.append[nick]
+
 
     if prefix in var.USERS:
         var.USERS[nick] = var.USERS.pop(prefix)
@@ -1833,8 +1841,8 @@ def mode(cli, nick, chan, mode, *params):
     if '-' in mode and 'o' in mode and chan == botconfig.CHANNEL:
         cli.send('whois', botconfig.NICK)
         @hook("whoischannels", hookid=267)
-        def is_not_op_or_just_me(cli, server, you, nick, chans): # check if the bot is op in the channel
-            if nick == you: # just make sure it's the right one
+        def is_not_op_or_just_me(cli, server, you, user, chans): # check if the bot is op in the channel
+            if user == you: # just make sure it's the right one
                 if botconfig.CHANNEL in chans:
                     if "@{0}".format(botconfig.CHANNEL) in chans:
                         return
@@ -1845,6 +1853,18 @@ def mode(cli, nick, chan, mode, *params):
                             stop_game(cli)
                             reset(cli)
                             cli.quit("An error has been encountered")
+        cli.who(botconfig.CHANNEL, "%nuhaf")
+        @hook("whospcrpl", hookid=267)
+        def check_for_ops(cli, server, you, ident, host, user, status, account): # user = nick
+            if user in var.IS_OP and '@' not in status:
+                if nick != you:
+                    var.IS_OP.remove[user]
+                if nick == you:
+                    var.IS_OP.remove[user]
+                    var.WAS_OP.append[user]
+        
+    if '+' in mode and 'o' in mode and chan == botconfig.CHANNEL:
+        
             decorators.unhook(HOOKS, 267)
 
 def begin_day(cli):
