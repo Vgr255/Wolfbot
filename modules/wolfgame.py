@@ -144,6 +144,8 @@ def connect_callback(cli):
             var.IS_ADMIN[user] = True
         if cloak in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
             var.IS_OWNER[user] = True
+        if "@" in status and user not in var.IS_OP:
+            var.IS_OP.append(user)
        
     @hook("endofwho", hookid=294)
     def afterwho(*args):
@@ -231,12 +233,12 @@ def reset(cli):
     for deadguy in var.DEAD:
         cmodes.append(("-q", deadguy+"!*@*"))
     for aop in var.list_players():
-        if aop in var.WAS_OP:
+        if aop in var.WAS_OP and aop not in var.IS_OP:
             var.WAS_OP.remove(aop)
             var.IS_OP.append(aop)
             cmodes.append(("+o", aop))
     for dop in var.DEAD:
-        if dop in var.WAS_OP:
+        if dop in var.WAS_OP and dop not in var.IS_OP:
             var.WAS_OP.remove(dop)
             var.IS_OP.append(dop)
             cmodes.append(("+o", dop))
@@ -606,7 +608,7 @@ def join(cli, rnick, chan, rest):
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
         
             var.LAST_STATS = None # reset
-        if nick in var.IS_OP and var.AUTO_OP_DEOP == True:
+        if nick in var.IS_OP and var.AUTO_OP_DEOP == True and nick not in var.WAS_OP:
             cli.mode(botconfig.CHANNEL, "-o {0}".format(nick))
             var.IS_OP.remove(nick)
             var.WAS_OP.append(nick)
@@ -625,7 +627,7 @@ def kill_join(cli, chan):
         chan_log(cli, var.FULL_ADDRESS, "cancel_game")
     var.LOGGER.logMessage('Game canceled.')
     for nick in pl:
-        if nick in var.WAS_OP:
+        if nick in var.WAS_OP and nick not in var.IS_OP:
             var.WAS_OP.remove(nick)
             var.IS_OP.append(nick)
             cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
@@ -755,6 +757,10 @@ def on_kicked(cli, nick, chan, victim, reason):
         elif victim in var.IS_ADMIN and var.IS_ADMIN[victim] == True:
             var.IS_ADMIN[victim] = False # make sure no abuse can be made (it will be set back on join anyway)
             var.IS_OWNER[victim] = False # no need to check if True or False, as all owners are admins
+    if victim in var.IS_OP:
+        var.IS_OP.remove(victim)
+    if victim in var.WAS_OP:
+        var.WAS_OP.remove(victim)
 
 
 @hook("account")
@@ -1272,7 +1278,7 @@ def del_player(cli, nick, forced_death = False, devoice = True):
             # Died during the joining process as a person
             mass_mode(cli, cmode)
             return not chk_win(cli)
-            if nick in var.WAS_OP:
+            if nick in var.WAS_OP and nick not in var.IS_OP:
                 var.WAS_OP.remove(nick)
                 var.IS_OP.append(nick)
                 cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
@@ -1318,7 +1324,7 @@ def del_player(cli, nick, forced_death = False, devoice = True):
         elif var.PHASE == "night" and ret:
             chk_nightdone(cli)
         return ret 
-    if nick in var.WAS_OP:
+    if nick in var.WAS_OP and nick not in var.IS_OP:
         var.WAS_OP.remove(nick)
         var.IS_OP.append(nick)
         cli.mode(botconfig.CHANNEL, "+o {0}".format(nick))
@@ -1582,7 +1588,7 @@ def on_join(cli, raw_nick, chan, acc="*", rname=""):
             if host in botconfig.OWNERS or acc in botconfig.OWNERS_ACCOUNTS:
                 var.IS_ADMIN[user] = True
                 var.IS_OWNER[user] = True
-            if '@' in status:
+            if '@' in status and nick not in var.IS_OP:
                 var.IS_OP.append(user)
         @hook("endofwho", hookid=121)
         def unhook_admins(*stuff): # not important
@@ -1678,7 +1684,7 @@ def on_nick(cli, rnick, nick):
     if prefix in var.IS_OWNER and var.IS_OWNER[prefix] == True:
         var.IS_OWNER[prefix] = False
         var.IS_OWNER[nick] = True
-    if prefix in var.IS_OP:
+    if prefix in var.IS_OP and nick not in var.IS_OP:
         var.IS_OP.remove(prefix)
         var.IS_OP.append(nick)
 
@@ -1888,7 +1894,7 @@ def mode(cli, nick, chan, mode, *params):
             if user in var.IS_OP and '@' not in status:
                 if nick != you:
                     var.IS_OP.remove(user)
-                if nick == you:
+                if nick == you and user not in var.WAS_OP:
                     var.IS_OP.remove(user)
                     var.WAS_OP.append(user)
         
@@ -1896,7 +1902,7 @@ def mode(cli, nick, chan, mode, *params):
         cli.who(botconfig.CHANNEL, "%nuhaf")
         @hook("whospcrpl", hookid=267)
         def check_new_ops(cli, server, you, ident, host, user, status, account): # user = nick
-            if user in var.WAS_OP and "@" in status:
+            if user in var.WAS_OP and "@" in status and user not in var.IS_OP:
                 var.WAS_OP.remove(user)
                 var.IS_OP.append(user)
     decorators.unhook(HOOKS, 267)

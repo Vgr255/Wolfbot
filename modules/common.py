@@ -306,6 +306,10 @@ def part(cli, nick, *chan):
                 if settings.DISABLE_AUTO_LOG == True:
                     settings.LOG_CHAN = False
                 decorators.unhook(HOOKS, 652)
+    if nick in settings.IS_OP:
+        settings.IS_OP.remove(nick)
+    if nick in settings.WAS_OP:
+        settings.WAS_OP.remove(nick)
 
 @hook("kick")
 def kick(cli, nick, *rest): # cli, nick, chan, target, reason
@@ -348,6 +352,10 @@ def quit(cli, nick, *message):
                 if settings.DISABLE_AUTO_LOG == True:
                     settings.LOG_CHAN = False
                 decorators.unhook(HOOKS, 652)
+    if nick in settings.IS_OP:
+        settings.IS_OP.remove(nick)
+    if nick in settings.WAS_OP:
+        settings.WAS_OP.remove(nick)
 
 @hook("invite")
 def notice(cli, nick, *rest): # cli, nick, target, chan
