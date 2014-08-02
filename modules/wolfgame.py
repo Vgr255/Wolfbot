@@ -4157,6 +4157,8 @@ if botconfig.DEBUG_MODE or botconfig.ALLOWED_NORMAL_MODE_COMMANDS:
                 cli.msg(chan, a)
             except Exception as e:
                 cli.msg(chan, str(type(e))+":"+str(e))
+            if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
+                chan_log(cli, rnick, "eval")
             
             
     
@@ -4176,6 +4178,8 @@ if botconfig.DEBUG_MODE or botconfig.ALLOWED_NORMAL_MODE_COMMANDS:
                 exec(rest[0])
             except Exception as e:
                 cli.msg(chan, str(type(e))+":"+str(e))
+            if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
+                chan_log(cli, rnick, "exec")
 
 
 if botconfig.ALLOWED_NORMAL_MODE_COMMANDS or botconfig.DEBUG_MODE:
@@ -4200,6 +4204,8 @@ if botconfig.ALLOWED_NORMAL_MODE_COMMANDS or botconfig.DEBUG_MODE:
             if var.PHASE in ('night','day'):
                 cli.msg(chan, "Cursed: "+str(var.CURSED))
                 cli.msg(chan, "Gunners: "+str(list(var.GUNNERS.keys())))
+            if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
+                chan_log(cli, rnick, "revealroles")
             
     @pmcmd("revealroles", raw_nick=True)
     def pmrevroles(cli, rnick, rest):
@@ -4212,6 +4218,8 @@ if botconfig.ALLOWED_NORMAL_MODE_COMMANDS or botconfig.DEBUG_MODE:
             if var.PHASE in ('night','day'):
                 cli.notice(nick, "Cursed: "+str(var.CURSED))
                 cli.notice(nick, "Gunners: "+str(list(var.GUNNERS.keys())))
+            if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
+                chan_log(cli, rnick, "revealroles")
         
         
     @cmd("fgame", raw_nick=True)

@@ -53,9 +53,10 @@ BAN_TYPE = "q"               # should be either q or b (WITHOUT the +) to decide
 AUTO_OP_FLAG = True          # used to decide whether the bot will send /msg ChanServ op on connect              #
 AUTO_OP_FAIL = False         # if set to True it will send an error to the channel upon connecting               #
 RAW_JOIN = True              # allow to join other chans than the default one                                    #
-LOG_CHAN = True              # logs activity in botconfig.ADMIN_CHAN                                             #
+LOG_CHAN = False             # logs activity in botconfig.ADMIN_CHAN                                             #
 LOG_AUTO_TOGGLE = True       # automatically disables logging if there are too many players                      #
-AUTO_LOG_TOGGLE = True       # automatically toggle logging when an admin gets in the admin_chan                 #
+AUTO_LOG_TOGGLE = False      # automatically toggle logging when an admin gets in the admin_chan                 #
+MINIMALIST_LOGGING = True    # only displays sensible commands. only useful if LOG_CHAN = False                  #
 EXT_PING = ""                # external pinging in the special channel. leave blank to disable it                #
 MAX_ERRORS = 4               # max amount of errors that can happen before the bot quits                         #
 USE_IDENT = False            # defines if should use ident along with host for !ping and similar                 #
