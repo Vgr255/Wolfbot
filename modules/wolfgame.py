@@ -1495,7 +1495,7 @@ def update_last_said(cli, nick, chan, rest):
                     cli.quit("Updating database")
                 if var.PHASE == "join":
                     cli.msg(chan, "Code successfully updated. Stopping current game and restarting.")
-                    stop_game(cli)
+                    reset(cli)
                     cli.quit("Updating database")
                 if var.PHASE in ["day", "night"]:
                     cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
