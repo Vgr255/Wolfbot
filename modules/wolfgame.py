@@ -98,7 +98,7 @@ var.WHO_HOST = {}
 var.IDLE_HOST = {}
 var.AUTO_LOG_TOGGLED = False
 var.NO_PING = False
-var.AUTO_LOG_TOGGLED = False
+var.AUTO_TOGGLED_LOG = False
 
 
 if botconfig.DEBUG_MODE:
@@ -293,14 +293,14 @@ def toggle_logging(cli, rnick, chan, rest):
                 chan_log(cli, rnick, "disable_auto_toggle")
                 cli.msg(chan, "Automatic logging toggle has been disabled.")
                 cli.msg(botconfig.ADMIN_CHAN, "Automatic logging toggle is now \u0002off\u0002.")
-                var.AUTO_LOG_TOGGLED = True
+                var.AUTO_TOGGLED_LOG = True
             return
         if var.LOG_CHAN == False:
             var.LOG_CHAN = True
             chan_log(cli, rnick, "enable_logging")
             cli.msg(chan, "Logging has now been enabled by \u0002{0}\u0002".format(nick))
             cli.msg(botconfig.ADMIN_CHAN, "Logging is now \u0002on\u0002")
-            if var.AUTO_LOG_TOGGLE == False and var.AUTO_LOG_TOGGLED == True:
+            if var.AUTO_LOG_TOGGLE == False and var.AUTO_TOGGLED_LOG == True:
                 var.AUTO_LOG_TOGGLE == True
                 chan_log(cli, rnick, "enable_auto_toggle")
                 cli.msg(chan, "Automatic logging toggle has been enabled.")
