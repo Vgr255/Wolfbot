@@ -6,7 +6,7 @@
 ### Running
 
 1. Install Python (min. 3.2)
-2. Copy `botconfig.example.py` to `botconfig.py` and modify to your heart's content.
+2. Copy `botconfig.py.example` to `botconfig.py` and modify to your heart's content.
 3. If desired, configure `settings/wolfgame.py` to modify game settings.
 4. Run the bot: `python wolfbot.py`
 
