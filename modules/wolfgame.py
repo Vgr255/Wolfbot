@@ -231,7 +231,7 @@ def reset(cli):
     cli.mode(chan, "-m")
     cmodes = []
     for plr in var.list_players():
-        if plr nnot in cmodes:
+        if plr not in cmodes:
             cmodes.append(("-v", plr))
     for deadguy in var.DEAD:
         if deadguy not in cmodes:
