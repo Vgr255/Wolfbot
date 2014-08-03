@@ -123,7 +123,7 @@ def connect_callback(cli):
 
     @hook("quietlist", hookid=294)
     def on_quietlist(cli, server, botnick, channel, q, quieted, by, something):
-        if re.match(".+\!\*@\*", quieted) and by == botnick and channel == botconfig.CHANNEL:  # only unquiet people quieted by bot
+        if re.match(".+\!\*@\*", quieted) and by == var.FULL_ADDRESS and channel == botconfig.CHANNEL:  # only unquiet people quieted by bot
             cmodes.append(("-q", quieted))
 
     @hook("whospcrpl", hookid=294)
