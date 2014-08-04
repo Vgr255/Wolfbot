@@ -14,6 +14,7 @@ GSTATS_RATE_LIMIT = 0        # time to wait for each !gamestats                 
 PSTATS_RATE_LIMIT = 0        # time to wait for each !player                                                     #
 TIME_RATE_LIMIT = 30         # time to wait for each !time                                                       #
 SHOTS_MULTIPLIER = .16       # ceil(shots_multiplier * len_players) = bullets given                              #
+MOLOTOV_AMOUNT = .11         # ceil(molotov_ammount * len_players) = molotovs given                              #
 MIN_PLAYERS = 4              # minimum amount of players needed to start a game (kind of unusued ...?)           #
 MAX_PLAYERS = 30             # maximum amount of players allowed                                                 #
 DRUNK_SHOTS_MULTIPLIER = 3   # drunk gets more bullets                                                           #
@@ -71,45 +72,49 @@ GUN_CHANCES         =   (   5/7  ,  1/7  ,   1/7   )
 DRUNK_GUN_CHANCES   =   (   3/7  ,  3/7  ,   1/7   )
 MANSLAUGHTER_CHANCE =       1/5  # ACCIDENTAL HEADSHOT (FATAL)
 
+                    #    SUCCESS   MISS    SUICIDE
+FIRE_CHANCES        =   (   3/7  ,  3/7  ,   1/7   )
+DRUNK_FIRE_CHANCES  =   (   2/7  ,  2/7  ,   3/7   )
+
 GUNNER_KILLS_WOLF_AT_NIGHT_CHANCE = 7/10
 GUARDIAN_ANGEL_DIES_CHANCE = 1/2
 DETECTIVE_REVEALED_CHANCE = 2/5
 
-#################################################################################################################
-#   ROLE INDEX:   PLAYERS   SEER    WOLF   CURSED   DRUNK   HARLOT  TRAITOR  GUNNER   CROW    ANGEL DETECTIVE  ##
-#################################################################################################################
-ROLES_GUIDE = {    4    : (   1   ,   1   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   5    : (   1   ,   1   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   6    : (   1   ,   1   ,   1   ,   1   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   7    : (   1   ,   1   ,   1   ,   1   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   8    : (   1   ,   2   ,   1   ,   1   ,   1   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   9    : (   1   ,   2   ,   1   ,   1   ,   1   ,    0   ,   0   ,   0    ,   0   ,   0   ), ##
-                   10   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   0    ,   0   ,   0   ), ##
-                   11   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   0    ,   0   ,   0   ), ##
-                   12   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   0   ), ##
-                   13   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   0   ), ##
-                   14   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   15   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   16   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   17   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   18   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   19   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   20   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   21   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   22   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   23   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   24   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   25   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ), ##
-                   26   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ), ##
-                   27   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ), ##
-                   28   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ), ##
-                   29   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ), ##
-                   30   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ), ##
-                   None : (   0   ,   0   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   )} ##
-#################################################################################################################
-#   Notes:  It is not needed to have a line for every combination, but it helps when you want to tweak a bit   ##
-#   Notes:  If one line is not specified (aka left out, doesn't appear) it will consider the next lower one    ##
-#################################################################################################################
+#########################################################################################################################
+#   ROLE INDEX:   PLAYERS   SEER    WOLF   CURSED   DRUNK   HARLOT  TRAITOR  GUNNER   CROW    ANGEL DETECTIVE  PYRO    ##
+#########################################################################################################################
+ROLES_GUIDE = {    4    : (   1   ,   1   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ,   0   ), ##
+                   5    : (   1   ,   1   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ,   0   ), ##
+                   6    : (   1   ,   1   ,   1   ,   1   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ,   0   ), ##
+                   7    : (   1   ,   1   ,   1   ,   1   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ,   1   ), ##
+                   8    : (   1   ,   2   ,   1   ,   1   ,   1   ,    0   ,   0   ,   0    ,   0   ,   0   ,   1   ), ##
+                   9    : (   1   ,   2   ,   1   ,   1   ,   1   ,    0   ,   0   ,   0    ,   0   ,   0   ,   1   ), ##
+                   10   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   0    ,   0   ,   0   ,   1   ), ##
+                   11   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   0    ,   0   ,   0   ,   1   ), ##
+                   12   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   0   ,   1   ), ##
+                   13   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   0   ,   1   ), ##
+                   14   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   15   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   16   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   17   : (   1   ,   2   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   18   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   19   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   20   : (   1   ,   3   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   21   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   22   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   23   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   24   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   25   : (   2   ,   4   ,   1   ,   1   ,   1   ,    1   ,   1   ,   1    ,   1   ,   1   ,   1   ), ##
+                   26   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ,   1   ), ##
+                   27   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ,   1   ), ##
+                   28   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ,   1   ), ##
+                   29   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ,   1   ), ##
+                   30   : (   2   ,   5   ,   1   ,   1   ,   1   ,    1   ,   2   ,   1    ,   1   ,   1   ,   1   ), ##
+                   None : (   0   ,   0   ,   0   ,   0   ,   0   ,    0   ,   0   ,   0    ,   0   ,   0   ,   0   )} ##
+#########################################################################################################################
+#   Notes:  It is not needed to have a line for every combination, but it helps when you want to tweak a bit           ##
+#   Notes:  If one line is not specified (aka left out, doesn't appear) it will consider the next lower one            ##
+#########################################################################################################################
 
 
 GAME_MODES = {}
@@ -126,7 +131,8 @@ ROLE_INDICES = {0 : "seer",
                 6 : "gunner",
                 7 : "werecrow",
                 8 : "guardian angel",
-                9 : "detective"}
+                9 : "detective",
+                10: "pyromancer"}
                 
 INDEX_OF_ROLE = dict((v,k) for k,v in ROLE_INDICES.items())
 
@@ -200,11 +206,12 @@ CHANGEABLE_ROLES = { "seers"  : INDEX_OF_ROLE["seer"],
                      "cursed" : INDEX_OF_ROLE["cursed villager"],
                     "drunks"  : INDEX_OF_ROLE["village drunk"],
                    "harlots"  : INDEX_OF_ROLE["harlot"],
-                  "traitors"  : INDEX_OF_ROLE["traitor"],
+                   "traitors" : INDEX_OF_ROLE["traitor"],
                    "gunners"  : INDEX_OF_ROLE["gunner"],
                  "werecrows"  : INDEX_OF_ROLE["werecrow"],
                  "angels"     : INDEX_OF_ROLE["guardian angel"],
-                 "detectives" : INDEX_OF_ROLE["detective"]}
+                 "detectives" : INDEX_OF_ROLE["detective"],
+                "pyromancers" : INDEX_OF_ROLE["pyromancer"]}
     
 
 

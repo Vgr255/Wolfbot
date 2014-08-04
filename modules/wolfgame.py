@@ -1927,6 +1927,8 @@ def begin_day(cli):
     var.OBSERVED = {}  # those whom werecrows have observed
     var.HVISITED = {}
     var.GUARDED = {}
+    var.BURN = []
+    var.BURNED = []
 
     msg = ("The villagers must now vote for whom to lynch. "+
            'Use "{0}lynch <nick>" to cast your vote. {1} votes '+
@@ -2842,6 +2844,50 @@ def see(cli, rnick, rest):
         if matches != 1:
             pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
             return
+    victim = var.list_players()[pll.index(target)]
+    if nick == victim:
+        var.BURNED[nick] = None
+    elif 
+    var.SEEN.append(nick)
+    var.LOGGER.logBare(victim, "BURN", nick)
+    chk_nightdone(cli)
+
+@pmcmd("burn", raw_nick=True)
+def burn_house(cli, rnick, rest):
+    nick, mode, user, host = parse_nick(rnick)
+    if var.PHASE in ("none", "join"):
+        cli.notice(nick, "No game is currently running.")
+        return
+    elif nick not in var.list_players() or nick in var.DISCONNECTED.keys():
+        cli.notice(nick, "You're not currently playing.")
+        return
+    if not var.is_role(nick, "pyromancer"):
+        pm(cli, nick, "Only a pyromancer may use this command")
+        return
+    if var.PHASE != "night":
+        pm(cli, nick, "You may only burn houses at night at night.")
+        return
+    if nick in var.BURN:
+        pm(cli, nick, "You may only burn one house per round.")
+        return
+    victim = re.split(" +",rest)[0].strip().lower()
+    pl = var.list_players()
+    pll = [x.lower() for x in pl]
+    if not victim:
+        pm(cli, nick, "Not enough parameters")
+        return
+    matches = 0
+    for player in pll:
+        if victim == player:
+            target = player
+            break
+        if player.startswith(victim):
+            target = player
+            matches += 1
+    else:
+        if matches != 1:
+            pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
+            return
     victim = pl[pll.index(target)]
     if victim in var.CURSED:
         role = "wolf"
@@ -2865,7 +2911,7 @@ def see(cli, rnick, rest):
     var.LOGGER.logBare(victim, "SEEN", nick)
     chk_nightdone(cli)
 
-@cmd("kill", "guard", "protect", "save", "visit", "see", "id")
+@cmd("kill", "guard", "protect", "save", "visit", "see", "id", "burn")
 def wrong_window(cli, nick, chan, rest):
     if chan == botconfig.CHANNEL:
         if var.PHASE in ("night", "day"):
