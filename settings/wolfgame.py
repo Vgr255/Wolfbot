@@ -15,9 +15,10 @@ PSTATS_RATE_LIMIT = 0        # time to wait for each !player                    
 TIME_RATE_LIMIT = 30         # time to wait for each !time                                                       #
 SHOTS_MULTIPLIER = .16       # ceil(shots_multiplier * len_players) = bullets given                              #
 MOLOTOV_AMOUNT = .11         # ceil(molotov_ammount * len_players) = molotovs given                              #
-MIN_PLAYERS = 4              # minimum amount of players needed to start a game (kind of unusued ...?)           #
+MIN_PLAYERS = 4              # minimum amount of players needed to start a game                                  #
 MAX_PLAYERS = 30             # maximum amount of players allowed                                                 #
 DRUNK_SHOTS_MULTIPLIER = 3   # drunk gets more bullets                                                           #
+DRUNK_FIRE_MULTIPLIER = 5    # drunk gets way more molotovs. but he can die as easily                            #
 NIGHT_TIME_WARN = 90         # should be less than NIGHT_TIME_LIMIT                                              #
 NIGHT_TIME_LIMIT = 120       # night ends after x seconds (default is 120)                                       #
 DAY_TIME_LIMIT_WARN = 480    # warns before the day changes                                                      #
@@ -28,6 +29,7 @@ SHORT_DAY_LIMIT_WARN = 180   # same as above, except for small days. only set if
 SHORT_DAY_LIMIT_CHANGE = 120 # same as above, except for small days                                              #
 START_WITH_DAY = False       # obviously, does game starts with day?                                             #
 WOLF_STEALS_GUN = True       # if True, gun will be handed to a random wolf/traitor/werecrow when gunner dies    #
+WOLF_STEALS_FIRE = True      # same, but for the arsonist instead                                                #
 KILL_IDLE_TIME = 300         # amount of seconds before the player is removed from the game                      #
 WARN_IDLE_TIME = 180         # warns after x seconds, before the player is removed from the game                 #
 PART_GRACE_TIME = 30         # amount of seconds the bot waits before removing when user /parts                  #
@@ -75,8 +77,10 @@ MANSLAUGHTER_CHANCE =       1/5  # ACCIDENTAL HEADSHOT (FATAL)
                     #    SUCCESS   MISS    SUICIDE
 FIRE_CHANCES        =   (   3/7  ,  3/7  ,   1/7   )
 DRUNK_FIRE_CHANCES  =   (   2/7  ,  2/7  ,   3/7   )
+BURN_HOUSE_DOWN     =       2/5  # HOUSE BURNED DOWN (occupiant survives)
 
 GUNNER_KILLS_WOLF_AT_NIGHT_CHANCE = 7/10
+PYRO_KILLS_WOLF_AT_NIGHT_CHANCE = 4/5
 GUARDIAN_ANGEL_DIES_CHANCE = 1/2
 DETECTIVE_REVEALED_CHANCE = 2/5
 
@@ -132,7 +136,7 @@ ROLE_INDICES = {0 : "seer",
                 7 : "werecrow",
                 8 : "guardian angel",
                 9 : "detective",
-                10: "pyromancer"}
+                10: "arsonist"}
                 
 INDEX_OF_ROLE = dict((v,k) for k,v in ROLE_INDICES.items())
 
@@ -211,7 +215,7 @@ CHANGEABLE_ROLES = { "seers"  : INDEX_OF_ROLE["seer"],
                  "werecrows"  : INDEX_OF_ROLE["werecrow"],
                  "angels"     : INDEX_OF_ROLE["guardian angel"],
                  "detectives" : INDEX_OF_ROLE["detective"],
-                "pyromancers" : INDEX_OF_ROLE["pyromancer"]}
+                 "arsonists"  : INDEX_OF_ROLE["arsonist"]}
     
 
 
