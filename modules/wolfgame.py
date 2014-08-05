@@ -2226,6 +2226,7 @@ def transition_day(cli, gameid=0):
         message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
                         "However, s/he survived and will now sleep in the middle "+
                         "of the remainings.").format(burnh))
+    cli.msg(chan, "\n".join(message))
     for msg in message:
         var.LOGGER.logMessage(msg.replace("\02", ""))
     for deadperson in dead:
