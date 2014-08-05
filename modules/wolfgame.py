@@ -100,6 +100,8 @@ var.IDLE_HOST = {}
 var.AUTO_LOG_TOGGLED = False
 var.NO_PING = False
 var.AUTO_TOGGLED_LOG = False
+var.BURNED_HOUSES = []
+var.BURNED = []
 
 
 if botconfig.DEBUG_MODE:
@@ -249,6 +251,7 @@ def reset(cli):
     mass_mode(cli, cmodes)
     var.DEAD = []
     var.NO_LYNCH = []
+    var.BURNED_HOUSES = []
 
     var.ROLES = {"person" : []}
 
@@ -1107,6 +1110,7 @@ def stop_game(cli, winner = ""):
     
     var.ORIGINAL_ROLES["cursed villager"] = var.CURSED  # A hack
     var.ORIGINAL_ROLES["gunner"] = list(var.GUNNERS.keys())
+    var.ORIGINAL_ROLES["arsonist"] = list(var.PYROS.keys())
 
     lroles = list(var.ORIGINAL_ROLES.keys())
     lroles.remove("wolf")
@@ -1275,7 +1279,8 @@ def del_player(cli, nick, forced_death = False, devoice = True):
         cmode = []
         if devoice:
             cmode.append(("-v", nick))
-        var.del_player(nick)
+        if not nick in var.BURNED:
+            var.del_player(nick)
         ret = True
         if var.PHASE == "join":
             # Died during the joining process as a person
@@ -1300,7 +1305,7 @@ def del_player(cli, nick, forced_death = False, devoice = True):
                     del var.KILLS[a]
                 elif a == nick:
                     del var.KILLS[a]
-            for x in (var.OBSERVED, var.HVISITED, var.GUARDED):
+            for x in (var.OBSERVED, var.HVISITED, var.GUARDED, var.BURN):
                 keys = list(x.keys())
                 for k in keys:
                     if k == nick:
@@ -1927,6 +1932,8 @@ def begin_day(cli):
     var.OBSERVED = {}  # those whom werecrows have observed
     var.HVISITED = {}
     var.GUARDED = {}
+    var.BURN = {}
+    var.BURNED_HOUSES = []
 
     msg = ("The villagers must now vote for whom to lynch. "+
            'Use "{0}lynch <nick>" to cast your vote. {1} votes '+
@@ -2025,6 +2032,7 @@ def transition_day(cli, gameid=0):
                "and search the village... ").format(min, sec)]
     dead = []
     crowonly = var.ROLES["werecrow"] and not var.ROLES["wolf"]
+    survived_fire = []
     if victim:
         var.LOGGER.logBare(victim, "WOLVESVICTIM", *[y for x,y in var.KILLS.items() if x == victim])
     for crow, target in iter(var.OBSERVED.items()):
@@ -2080,8 +2088,10 @@ def transition_day(cli, gameid=0):
                         decorators.unhook(HOOKS, 942)
             message.append("The wolves' selected victim was a harlot, "+
                            "but she wasn't home.")
-    if victim and (victim not in var.ROLES["harlot"] or   # not a harlot
-                          not var.HVISITED.get(victim)):   # harlot stayed home
+    if victim and (victim not in var.ROLES["harlot"] or    # not a harlot
+                          not var.HVISITED.get(victim) and # harlot stayed home
+                          (not var.BURNED.get(victim) and
+                          victim in var.list_players())):  # victim wasn't burned to ashes
         if var.LOG_CHAN == True:
             cli.send("whois", victim)
             @hook("whoisuser", hookid=942)
@@ -2114,6 +2124,28 @@ def transition_day(cli, gameid=0):
             message.append(("Fortunately, the victim, \02{0}\02, had bullets, and "+
                             "\02{1}\02, a \02{2}\02, was shot dead.").format(victim, deadwolf, var.get_role(deadwolf)))
             var.LOGGER.logBare(deadwolf, "KILLEDBYGUNNER")
+            dead.append(deadwolf)
+    if victim in var.PYROS.keys() and var.PYROS[victim]:  # victim had molotovs!
+        if random.random() < var.PYRO_KILLS_WOLF_AT_NIGHT_CHANCE:
+            wc = var.ROLES["werecrow"]
+            for crow in wc:
+                if crow in var.OBSERVED.keys():
+                    wc.remove(crow)
+            # don't kill off werecrows that observed
+            deadwolf = random.choice(var.ROLES["wolf"]+wc)
+            if var.LOG_CHAN == True:
+                cli.send("whois", deadwolf)
+                @hook("whoisuser", hookid=942)
+                def wolf_killed_host(cli, server, you, nick, ident, host, dunno, realname):
+                    if nick == deadwolf:
+                        deadwolf_ = "{0}!{1}@{2}".format(nick, ident, host)
+                        chan_log(cli, deadwolf_, "night_burnt")
+                        decorators.unhook(HOOKS, 942)
+            message.append(("Fortunately, the victim, \02{0}\02, had molotovs, and "+
+                            "decided to burn his/her house down, killing \02{1}\02 "+
+                            "in the process, most likely a \02wolf\02").format(victim, deadwolf))
+            var.LOGGER.logBare(deadwolf, "KILLEDBYPYRO")
+            var.BURNED.append(deadwolf)
             dead.append(deadwolf)
     if victim in var.HVISITED.values():  #  victim was visited by some harlot
         for hlt in var.HVISITED.keys():
@@ -2164,6 +2196,37 @@ def transition_day(cli, gameid=0):
                                 "and is now dead.").format(gangel))
                 var.LOGGER.logBare(gangel, "KILLEDWHENGUARDINGWOLF")
                 dead.append(gangel)
+    for burned in var.BURNED:
+        if burned == victim:
+            wc = var.ROLES["werecrow"]
+            for crow in wc:
+                if crow in var.OBSERVED.keys():
+                    wc.remove(crow) # don't kill off crows that observed
+            deadwolves = var.ROLES["wolf"]+wc
+            dw = random.choice(deadwolves)
+            dead.append(dw)
+            message.append(("Last night, the wolves attacked \02{0}\02. "+
+                            "However, an arsonist decided to burn the house "+
+                            "down as well. \02{1}\02 was also found dead inside. "+
+                            "Because of the fire, it is impossible to determine "+
+                            "what roles they had when they were alive.").format(victim, dw))
+        elif burned in var.list_players():
+            pos_surv = var.ROLES["seer"]+var.ROLES["harlot"]+var.ROLES["wolf"]+var.ROLES["werecrow"]+var.ROLES["guardian angel"]
+            surv_pos = var.SEEN+list(var.HVISITED)+list(var.GUARDED)+list(var.KILLS)+list(var.OBSERVED)
+            for roleplay in pos_surv: # Esper used to have a lot of roleplayers, you know
+                if roleplay in var.SEEN or roleplay in var.HVISITED.keys() or roleplay in var.KILLS.keys() or roleplay in var.OBSERVED.keys() or roleplay in var.GUARDED.keys():
+                    survived_fire.append(roleplay)
+            if not burned in survived_fire:
+                message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
+                                "They have burned down to ashes and it is impossible to "+
+                                "determine the role they had when alive.").format(burned))
+                dead.append(burned)
+    for burnh in var.BURNED_HOUSES:
+        if burnh in dead or (burnh in var.BURNED and burnh not in survived_fire):
+            continue # their house is burned down anyway
+        message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
+                        "However, s/he survived and will now sleep in the middle "+
+                        "of the remainings.").format(burnh))
     cli.msg(chan, "\n".join(message))
     for msg in message:
         var.LOGGER.logMessage(msg.replace("\02", ""))
@@ -2197,14 +2260,40 @@ def transition_day(cli, gameid=0):
             mmsg = mmsg.format(numbullets, "s", victim)
         pm(cli, guntaker, mmsg)
         var.GUNNERS[victim] = 0  # just in case
+    
+    if (var.WOLF_STEALS_FIRE and victim in dead and 
+        victim in var.PYROS.keys() and var.PYROS[victim] > 0):
+        # victim has molotovs
+        firetaker = random.choice(var.ROLES["wolf"] + var.ROLES["werecrow"] 
+                                 + var.ROLES["traitor"])  # random looter
+        numfire = var.PYROS[victim]
+        var.PYROS[firetaker] = numfire  # transfer molotovs to him/her
+        if var.LOG_CHAN == True:
+            cli.send("whois", guntaker)
+            @hook("whoisuser", hookid=942)
+            def firetaker_host(cli, server, you, nick, ident, host, dunno, realname):
+                if nick == firetaker:
+                    wolfpyro = "{0}!{1}@{2}".format(nick, ident, host)
+                    chan_log(cli, wolfpyro, "wolf_fire")
+                    decorators.unhook(HOOKS, 942)
+        nmsg = ("While searching {2}'s belongings, You found " + 
+                "{0} molotov{1}! Use \"burn nick\" in PM to "+
+                "burn a house down.")
+        if numfire == 1:
+            nmsg = nmsg.format(numfire, "", victim)
+        else:
+            nmsg = nmsg.format(numfire, "s", victim)
+        pm(cli, firetaker, nmsg)
+        var.PYROS[victim] = 0  # just in case
     begin_day(cli)
 
 
 def chk_nightdone(cli):
     if (len(var.SEEN) == len(var.ROLES["seer"]) and  # Seers have seen.
-        len(var.HVISITED.keys()) == len(var.ROLES["harlot"]) and  # harlots have visited.
+        len(var.HVISITED.keys()) == len(var.ROLES["harlot"]) and  # harlots have harlotted.
         len(var.GUARDED.keys()) == len(var.ROLES["guardian angel"]) and  # guardians have guarded
-        len(var.ROLES["werecrow"]+var.ROLES["wolf"]) == len(var.KILLS)+len(var.OBSERVED) and
+        len(var.ROLES["werecrow"]+var.ROLES["wolf"]) == len(var.KILLS)+len(var.OBSERVED) and # wolves have wolved
+        len(var.BURN.keys()) == len(var.PYROS) and # arsonists have arsoned
         var.PHASE == "night"):
         
         # check if wolves are actually agreeing
@@ -2842,7 +2931,7 @@ def see(cli, rnick, rest):
         if matches != 1:
             pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
             return
-    victim = pl[pll.index(target)]
+    victim = var.list_players()[pll.index(target)]
     if victim in var.CURSED:
         role = "wolf"
     elif var.get_role(victim) == "traitor":
@@ -2865,7 +2954,90 @@ def see(cli, rnick, rest):
     var.LOGGER.logBare(victim, "SEEN", nick)
     chk_nightdone(cli)
 
-@cmd("kill", "guard", "protect", "save", "visit", "see", "id")
+@pmcmd("burn", raw_nick=True)
+def burn_house(cli, rnick, rest):
+    nick, mode, user, host = parse_nick(rnick)
+    change_mind = False
+    if var.PHASE in ("none", "join"):
+        cli.notice(nick, "No game is currently running.")
+        return
+    elif nick not in var.list_players() or nick in var.DISCONNECTED.keys():
+        cli.notice(nick, "You're not currently playing.")
+        return
+    if nick not in var.PYROS:
+        pm(cli, nick, "Only an arsonist may use this command")
+        return
+    if var.PHASE != "night":
+        pm(cli, nick, "You may only burn houses at night.")
+        return
+    if nick in var.BURN and not var.BURN[nick] == None:
+        change_mind = True
+    victim = re.split(" +",rest)[0].strip().lower()
+    pl = var.list_players()
+    pll = [x.lower() for x in pl]
+    if not victim:
+        pm(cli, nick, "Not enough parameters")
+        return
+    matches = 0
+    for player in pll:
+        if victim == player:
+            target = player
+            break
+        if player.startswith(victim):
+            target = player
+            matches += 1
+    else:
+        if matches != 1:
+            pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
+            return
+    victim = pl[pll.index(target)]
+    if victim in var.BURNED and victim in pl:
+        pm(cli, nick, "That house is already burnt down.")
+        return
+    if var.LOG_CHAN == True:
+        cli.send("whois", victim)
+        @hook("whoisuser", hookid=820)
+        def burned_host(cli, server, you, nick, ident, host, dunno, realname):
+            if nick == victim:
+                burned = "{0}!{1}@{2}".format(nick, ident, host)
+                chan_log(cli, rnick, "burn")
+                chan_log(cli, burned, "burned")
+                decorators.unhook(HOOKS, 820)
+    if change_mind == False:
+        pm(cli, nick, "You have thrown a molotov at \u0002{0}\u0002's house. You will see the results of your deeds on the morning.".format(victim))
+    else:
+        pm(cli, nick, "You take back your previously thrown molotov and throw it towards \u0002{0}\u0002's house instead.".format(victim))
+    rand = random.random()
+    chances = var.FIRE_CHANCES
+    if nick in var.ROLES["village drunk"]:
+        chances = var.DRUNK_FIRE_CHANCES
+    if rand <= chances[0]: # molotov hit the house, it'll burn down
+        var.BURNED.append(victim)
+        var.BURNED_HOUSES.append(victim)
+    elif rand <= chances[0] + chances[1]: # miss
+        var.MOLOTOVS_MISSED.append(nick)
+        var.BURNED_HOUSES.append(victim)
+    else: # suicide
+        var.BURNED.append(nick)
+    var.BURN[nick] = victim
+    var.LOGGER.logBare(victim, "BURN", nick)
+    chk_nightdone(cli)
+    
+@pmcmd("noburn", "no-burn", "notburn", "not-burn", raw_nick=True)
+def no_burning_pyro(cli, rnick, rest):
+    nick, mode, user, host = parse_nick(rnick)
+    if nick in var.PYROS.keys() and nick not in var.BURN.keys():
+        var.BURN[nick] = None
+        pm(cli, nick, "You chose to keep your molotov(s) to yourself for this night.")
+        if var.LOG_CHAN == True:
+            chan_log(cli, rnick, "no_burn")
+    elif nick in var.PYROS.keys() and nick in var.BURN.keys():
+        var.BURN[nick] = None
+        pm(cli, nick, "You decide to get back your molotov and keep it for this night.")
+    else:
+        pm(cli, nick, "Only an arsonist may use this command.")
+
+@cmd("kill", "guard", "protect", "save", "visit", "see", "id", "burn")
 def wrong_window(cli, nick, chan, rest):
     if chan == botconfig.CHANNEL:
         if var.PHASE in ("night", "day"):
@@ -3053,6 +3225,8 @@ def transition_night(cli):
     var.SEEN = []  # list of seers that have had visions
     var.OBSERVED = {}  # those whom werecrows have observed
     var.HVISITED = {}
+    var.BURN = {}
+    var.MOLOTOVS_MISSED = []
     var.NIGHT_START_TIME = datetime.now()
 
     daydur_msg = ""
@@ -3306,6 +3480,47 @@ def transition_night(cli):
             continue
         
         pm(cli, g, gun_msg)
+    for pyro in tuple(var.PYROS.keys()):
+        if pyro not in ps:
+            continue
+        elif not var.PYROS[pyro]:
+            continue
+        norm_notify = pyro in var.PLAYERS and var.PLAYERS[pyro]["cloak"] not in var.SIMPLE_NOTIFY
+        if norm_notify:
+            if var.LOG_CHAN == True:
+                cli.send("whois", pyro)
+                @hook("whoisuser", hookid=646)
+                def call_gunner(cli, server, you, nick, ident, host, dunno, realname):
+                    if nick == pyro:
+                        arse = "{0}!{1}@{2}".format(nick, ident, host) # hehehe, he's an arse
+                        chan_log(cli, arse, "call_arsonist")
+            pyromsg = ("You have \02molotovs\02 that you can throw at people's houses "+
+                       "during the night. Use \"burn <nick>\" to throw a molotov. "+
+                       "If you burn the house of someone who is not there, they will "+
+                       "survive and you will not be able to burn down their house again. "+
+                       "Anyone inside the house (harlot, wolves or resident) will die. "+
+                       "Use \"no-burn\" to not use any molotov. You get {0}.")
+        else:
+            if var.LOG_CHAN == True:
+                cli.send("whois", g)
+                @hook("whoisuser", hookid=646)
+                def simple_gunner(cli, server, you, nick, ident, host, dunno, realname):
+                    if nick == g:
+                        gun_s = "{0}!{1}@{2}".format(nick, ident, host)
+                        chan_log(cli, gun_s, "simple_gunner")
+            pyromsg = ("You have \02{0}\02.")
+        if var.PYROS[pyro] == 1:
+            pyromsg = pyromsg.format("1 molotov")
+        elif var.PYROS[pyro] > 1:
+            pyromsg = pyromsg.format(str(var.PYROS[pyro]) + " molotovs")
+        else:
+            continue
+        
+        pm(cli, pyro, pyromsg)
+        pl = ps[:]
+        pl.sort(key=lambda x: x.lower())
+        pl.remove(pyro)
+        pm(cli, pyro, "Players: " + ", ".join(pl))
     if var.LOG_CHAN == True:
         chan_log(cli, var.FULL_ADDRESS, "night_begin")
     dmsg = (daydur_msg + "It is now nighttime. All players "+
@@ -3392,8 +3607,8 @@ def start(cli, rnick, chan, rest):
             cli.msg(chan, "Please wait at least {0} more seconds.".format(dur))
             return
 
-        if len(villagers) < 4:
-            cli.msg(chan, "{0}: Four or more players are required to play.".format(nick))
+        if len(villagers) < var.MIN_PLAYERS:
+            cli.msg(chan, "{0}: \u0002{1}\u0002 or more players are required to play.".format(nick, var.MIN_PLAYERS))
             return
 
         for pcount in range(len(villagers), 3, -1):
@@ -3431,8 +3646,10 @@ def start(cli, rnick, chan, rest):
         var.CURSED = []
         var.GUNNERS = {}
         var.WOLF_GUNNERS = {}
+        var.PYROS = {}
+        var.BURNED = [] # must be initialized here
 
-        villager_roles = ("gunner", "cursed villager")
+        villager_roles = ("gunner", "cursed villager", "arsonist")
         for i, count in enumerate(addroles):
             role = var.ROLE_INDICES[i]
             if role in villager_roles:
@@ -3474,6 +3691,16 @@ def start(cli, rnick, chan, rest):
                 else:
                     var.GUNNERS[gnr] = math.ceil(var.SHOTS_MULTIPLIER * len(pl))
         del var.ROLES["gunner"]
+        if var.ROLES["arsonist"]:
+            possiblepyro = pl[:]
+            for notpyro in var.GUNNERS: # anyone but gunner can be pyro
+                possiblepyro.remove(notpyro) # I had a lot of fun typing pyro over and over (not)
+            for drp in random.sample(possiblepyro, len(var.ROLES["arsonist"])):
+                if drp in var.ROLES["village drunk"]:
+                    var.PYROS[drp] = var.DRUNK_FIRE_MULTIPLIER * math.ceil(var.MOLOTOV_AMOUNT * len(pl))
+                else:
+                    var.PYROS[drp] = math.ceil(var.MOLOTOV_AMOUNT * len(pl))
+        del var.ROLES["arsonist"]
         var.SPECIAL_ROLES["goat herder"] = []
         if var.GOAT_HERDER:
             var.SPECIAL_ROLES["goat herder"] = [ nick ]
@@ -3527,6 +3754,10 @@ def start(cli, rnick, chan, rest):
             var.LOGGER.log("Villagers With Bullets: "+", ".join([x+"("+str(y)+")" for x,y in var.GUNNERS.items()]))
             for plr in var.GUNNERS:
                 var.LOGGER.logBare(plr, "ROLE gunner")
+        if var.PYROS:
+            var.LOGGER.log("Players With Molotovs: "+", ".join([x+"("+str(y)+")" for x,y in var.PYROS.items()]))
+            for plr in var.PYROS:
+                var.LOGGER.logBare(plr, "ROLE arsonist")
     
         var.LOGGER.log("***")        
         
@@ -3834,6 +4065,11 @@ def myrole(cli, rnick, chan, rest):
             pm(cli, nick, "You have a \02gun\02 with {0} {1}.".format(var.WOLF_GUNNERS[nick], "bullet"))
         else:
             pm(cli, nick, "You have a \02gun\02 with {0} {1}.".format(var.WOLF_GUNNERS[nick], "bullets"))
+    elif nick in var.PYROS and var.PYROS[nick]:
+        if var.PYROS[nick] == 1:
+            pm(cli, nick, "You have {0} {1}.".format(var.PYROS[nick], "molotov"))
+        else:
+            pm(cli, nick, "You have {0} {1}.".format(var.PYROS[nick], "molotovs"))
 
 @pmcmd("myrole", raw_nick=True)
 def myrole_pm(cli, rnick, rest):
@@ -3954,13 +4190,13 @@ def get_help(cli, rnick, rest):
                 pm(cli, nick, "Documentation for this command is not available.")
             return
     # if command was not found, or if no command was given:
-    for name, fn in COMMANDS.items():
+    for name, fn in COMMANDS.items() and name not in botconfig.DISABLED_COMMANDS:
         if (name and not fn[0].admin_only and 
             not fn[0].owner_only and name not in fn[0].aliases):
             fns.append("\u0002"+name+"\u0002")
     afns = []
-    if is_admin(cloak) or cloak in botconfig.OWNERS: # todo - is_owner
-        for name, fn in COMMANDS.items():
+    if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True: # todo - is_owner
+        for name, fn in COMMANDS.items() and name not in botconfig.DISABLED_COMMANDS:
             if fn[0].admin_only and name not in fn[0].aliases:
                 afns.append("\u0002"+name+"\u0002")
     cli.notice(nick, "Commands: "+", ".join(fns))
@@ -4213,6 +4449,7 @@ if botconfig.ALLOWED_NORMAL_MODE_COMMANDS or botconfig.DEBUG_MODE:
             if var.PHASE in ('night','day'):
                 cli.msg(chan, "Cursed: "+str(var.CURSED))
                 cli.msg(chan, "Gunners: "+str(list(var.GUNNERS.keys())))
+                cli.msg(chan, "Arsonists: "+str(list(var.PYROS.keys())))
             if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
                 chan_log(cli, rnick, "revealroles")
             
@@ -4227,6 +4464,7 @@ if botconfig.ALLOWED_NORMAL_MODE_COMMANDS or botconfig.DEBUG_MODE:
             if var.PHASE in ('night','day'):
                 cli.notice(nick, "Cursed: "+str(var.CURSED))
                 cli.notice(nick, "Gunners: "+str(list(var.GUNNERS.keys())))
+                cli.notice(nick, "Arsonists: "+str(list(var.PYROS.keys())))
             if var.LOG_CHAN == True or var.MINIMALIST_LOG == True:
                 chan_log(cli, rnick, "revealroles")
         
