@@ -77,7 +77,6 @@ MANSLAUGHTER_CHANCE =       1/5  # ACCIDENTAL HEADSHOT (FATAL)
                     #    SUCCESS   MISS    SUICIDE
 FIRE_CHANCES        =   (   3/7  ,  3/7  ,   1/7   )
 DRUNK_FIRE_CHANCES  =   (   2/7  ,  2/7  ,   3/7   )
-BURN_HOUSE_DOWN     =       2/5  # HOUSE BURNED DOWN (occupiant survives)
 
 GUNNER_KILLS_WOLF_AT_NIGHT_CHANCE = 7/10
 PYRO_KILLS_WOLF_AT_NIGHT_CHANCE = 4/5
