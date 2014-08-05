@@ -2961,7 +2961,7 @@ def burn_house(cli, rnick, rest):
     elif nick not in var.list_players() or nick in var.DISCONNECTED.keys():
         cli.notice(nick, "You're not currently playing.")
         return
-    if var.PYROS[nick]:
+    if nick in var.PYROS:
         pm(cli, nick, "Only an arsonist may use this command")
         return
     if var.PHASE != "night":
