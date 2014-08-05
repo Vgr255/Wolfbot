@@ -101,6 +101,7 @@ var.AUTO_LOG_TOGGLED = False
 var.NO_PING = False
 var.AUTO_TOGGLED_LOG = False
 var.BURNED_HOUSES = []
+var.BURNED = []
 
 
 if botconfig.DEBUG_MODE:
