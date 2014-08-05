@@ -1932,7 +1932,7 @@ def begin_day(cli):
     var.HVISITED = {}
     var.GUARDED = {}
     var.BURN = {}
-    var.MOLOTOVS_MISSED = []
+    var.BURNED_HOUSES = []
 
     msg = ("The villagers must now vote for whom to lynch. "+
            'Use "{0}lynch <nick>" to cast your vote. {1} votes '+
@@ -3502,6 +3502,10 @@ def transition_night(cli):
             continue
         
         pm(cli, pyro, pyromsg)
+        pl = ps[:]
+        pl.sort(key=lambda x: x.lower())
+        pl.remove(pyro)
+        pm(cli, pyro, "Players: " + ", ".join(pl))
     if var.LOG_CHAN == True:
         chan_log(cli, var.FULL_ADDRESS, "night_begin")
     dmsg = (daydur_msg + "It is now nighttime. All players "+
