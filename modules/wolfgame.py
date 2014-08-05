@@ -1109,6 +1109,7 @@ def stop_game(cli, winner = ""):
     
     var.ORIGINAL_ROLES["cursed villager"] = var.CURSED  # A hack
     var.ORIGINAL_ROLES["gunner"] = list(var.GUNNERS.keys())
+    var.ORIGINAL_ROLES["arsonist"] = list(var.PYROS.keys())
 
     lroles = list(var.ORIGINAL_ROLES.keys())
     lroles.remove("wolf")
@@ -2929,6 +2930,24 @@ def see(cli, rnick, rest):
             pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
             return
     victim = var.list_players()[pll.index(target)]
+    if victim in var.CURSED:
+        role = "wolf"
+    elif var.get_role(victim) == "traitor":
+        role = "villager"
+    else:
+        role = var.get_role(victim)
+    if var.LOG_CHAN == True:
+        cli.send("whois", victim)
+        @hook("whoisuser", hookid=820)
+        def seen_host(cli, server, you, nick, ident, host, dunno, realname):
+            if nick == victim:
+                seen = "{0}!{1}@{2}".format(nick, ident, host)
+                chan_log(cli, rnick, "see")
+                chan_log(cli, seen, "seen")
+                decorators.unhook(HOOKS, 820)
+    pm(cli, nick, ("You have a vision; in this vision, "+
+                    "you see that \u0002{0}\u0002 is a "+
+                    "\u0002{1}\u0002!").format(victim, role))
     var.SEEN.append(nick)
     var.LOGGER.logBare(victim, "SEEN", nick)
     chk_nightdone(cli)
@@ -2942,7 +2961,7 @@ def burn_house(cli, rnick, rest):
     elif nick not in var.list_players() or nick in var.DISCONNECTED.keys():
         cli.notice(nick, "You're not currently playing.")
         return
-    if not var.is_role(nick, "arsonist"):
+    if var.PYROS[nick]:
         pm(cli, nick, "Only an arsonist may use this command")
         return
     if var.PHASE != "night":
