@@ -3017,7 +3017,7 @@ def burn_house(cli, rnick, rest):
         var.BURNED_HOUSES.append(victim)
     else: # suicide
         var.BURNED.append(nick)
-    var.BURN.append[nick]
+    var.BURN[nick] = victim
     var.LOGGER.logBare(victim, "BURN", nick)
     chk_nightdone(cli)
 
