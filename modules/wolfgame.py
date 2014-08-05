@@ -2957,6 +2957,7 @@ def see(cli, rnick, rest):
 @pmcmd("burn", raw_nick=True)
 def burn_house(cli, rnick, rest):
     nick, mode, user, host = parse_nick(rnick)
+    change_mind = False
     if var.PHASE in ("none", "join"):
         cli.notice(nick, "No game is currently running.")
         return
@@ -2970,8 +2971,7 @@ def burn_house(cli, rnick, rest):
         pm(cli, nick, "You may only burn houses at night.")
         return
     if nick in var.BURN and not var.BURN[nick] == None:
-        pm(cli, nick, "You may only burn one house per round.")
-        return
+        change_mind = True
     victim = re.split(" +",rest)[0].strip().lower()
     pl = var.list_players()
     pll = [x.lower() for x in pl]
@@ -2991,11 +2991,8 @@ def burn_house(cli, rnick, rest):
             pm(cli, nick,"\u0002{0}\u0002 is currently not playing.".format(victim))
             return
     victim = pl[pll.index(target)]
-    if victim in var.BURNED_HOUSES and victim in pl:
+    if victim in var.BURNED and victim in pl:
         pm(cli, nick, "That house is already burnt down.")
-        return
-    if victim in var.BURNED and victim in pl: # prevent double-molotoving
-        pm(cli, nick, "Another arsonist already threw a molotov there!")
         return
     if var.LOG_CHAN == True:
         cli.send("whois", victim)
@@ -3006,7 +3003,10 @@ def burn_house(cli, rnick, rest):
                 chan_log(cli, rnick, "burn")
                 chan_log(cli, burned, "burned")
                 decorators.unhook(HOOKS, 820)
-    pm(cli, nick, "You have thrown a molotov at \u0002{0}\u0002's house. You will see the results of your deeds on the morning.".format(victim))
+    if change_mind == False:
+        pm(cli, nick, "You have thrown a molotov at \u0002{0}\u0002's house. You will see the results of your deeds on the morning.".format(victim))
+    else:
+        pm(cli, nick, "You take back your previously thrown molotov and throw it towards \u0002{0}\u0002's house instead.".format(victim))
     rand = random.random()
     chances = var.FIRE_CHANCES
     if nick in var.ROLES["village drunk"]:
@@ -3026,11 +3026,14 @@ def burn_house(cli, rnick, rest):
 @pmcmd("noburn", "no-burn", "notburn", "not-burn", raw_nick=True)
 def no_burning_pyro(cli, rnick, rest):
     nick, mode, user, host = parse_nick(rnick)
-    if nick in var.PYROS.keys():
+    if nick in var.PYROS.keys() and nick not in var.BURN.keys():
         var.BURN[nick] = None
         pm(cli, nick, "You chose to keep your molotov(s) to yourself for this night.")
         if var.LOG_CHAN == True:
             chan_log(cli, rnick, "no_burn")
+    elif nick in var.PYROS.keys() and nick in var.BURN.keys():
+        var.BURN[nick] = None
+        pm(cli, nick, "You decide to get back your molotov and keep it for this night.")
     else:
         pm(cli, nick, "Only an arsonist may use this command.")
 
