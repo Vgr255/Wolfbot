@@ -148,7 +148,8 @@ def check_flags(cli, nick, rest):
 def connect_callback(cli):
 
     def send_listchans(*args):
-        cli.msg("NickServ", "listchans")
+        if botconfig.PASS:
+            cli.msg("NickServ", "listchans")
 
     def prepare_stuff(*args):
         cli.join(botconfig.CHANNEL)
@@ -185,10 +186,14 @@ def connect_callback(cli):
     prepare_stuff = hook("endofmotd", hookid=294)(prepare_stuff)
 
     def mustregain(cli, *blah):
+        if not botconfig.PASS:
+            return
         cli.ns_ghost()    
         cli.nick(botconfig.NICK)        
                     
     def mustrelease(cli, *rest):
+        if not botconfig.PASS:
+            return
         cli.ns_release()
         cli.nick(botconfig.NICK)
 
