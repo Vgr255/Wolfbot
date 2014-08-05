@@ -3024,7 +3024,7 @@ def burn_house(cli, rnick, rest):
     chk_nightdone(cli)
     
 @pmcmd("noburn", "no-burn", "notburn", "not-burn", raw_nick=True)
-def no_burning_pyro(clik, rnick, rest):
+def no_burning_pyro(cli, rnick, rest):
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.PYROS.keys():
         var.BURN[nick] = None
