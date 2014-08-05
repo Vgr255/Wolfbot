@@ -1931,7 +1931,7 @@ def begin_day(cli):
     var.OBSERVED = {}  # those whom werecrows have observed
     var.HVISITED = {}
     var.GUARDED = {}
-    var.BURN = []
+    var.BURN = {}
     var.MOLOTOVS_MISSED = []
 
     msg = ("The villagers must now vote for whom to lynch. "+
@@ -3004,7 +3004,7 @@ def burn_house(cli, rnick, rest):
                 chan_log(cli, rnick, "burn")
                 chan_log(cli, burned, "burned")
                 decorators.unhook(HOOKS, 820)
-    pm(cli, nick, "You have thrown a molotov at \u0002{0}\u0002's house. You will see the results of your deeds on the morning.")
+    pm(cli, nick, "You have thrown a molotov at \u0002{0}\u0002's house. You will see the results of your deeds on the morning.".format(victim))
     rand = random.random()
     chances = var.FIRE_CHANCES
     if nick in var.ROLES["village drunk"]:
@@ -3017,7 +3017,7 @@ def burn_house(cli, rnick, rest):
         var.BURNED_HOUSES.append(victim)
     else: # suicide
         var.BURNED.append(nick)
-    var.BURN.append(nick)
+    var.BURN.append[nick]
     var.LOGGER.logBare(victim, "BURN", nick)
     chk_nightdone(cli)
 
@@ -3209,7 +3209,7 @@ def transition_night(cli):
     var.SEEN = []  # list of seers that have had visions
     var.OBSERVED = {}  # those whom werecrows have observed
     var.HVISITED = {}
-    var.BURN = []
+    var.BURN = {}
     var.MOLOTOVS_MISSED = []
     var.NIGHT_START_TIME = datetime.now()
 
