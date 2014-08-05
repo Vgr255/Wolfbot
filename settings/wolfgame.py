@@ -174,8 +174,8 @@ def list_players():
     for burned in BURNED: # burned players' roles still appear, but they mustn't be marked as alive
         burnt.append(burned)
     for x in ROLES.values():
-        if burnt:
-            x.remove(burnt)
+        if x in burnt:
+            continue
         pl.extend(x)
     return pl
     
