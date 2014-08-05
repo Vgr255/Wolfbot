@@ -2211,8 +2211,9 @@ def transition_day(cli, gameid=0):
                             "what roles they had when they were alive.").format(victim, dw))
         elif burned in var.list_players():
             pos_surv = var.ROLES["seer"]+var.ROLES["harlot"]+var.ROLES["wolf"]+var.ROLES["werecrow"]+var.ROLES["guardian angel"]
+            surv_pos = var.SEEN+var.HVISITED+var.GUARDED+var.KILLS+var.OBSERVED
             for roleplay in pos_surv: # Esper used to have a lot of roleplayers, you know
-                if var.SEEN[roleplay] or var.HVISITED[roleplay] or var.GUARDED[roleplay] or var.KILLS[roleplay] or var.OBSERVED[roleplay]:
+                if roleplay in surv_pos:
                     survived_fire.append(roleplay)
             if not burned in survived_fire:
                 message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
