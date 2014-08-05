@@ -3956,12 +3956,12 @@ def get_help(cli, rnick, rest):
     # if command was not found, or if no command was given:
     for name, fn in COMMANDS.items():
         if (name and not fn[0].admin_only and 
-            not fn[0].owner_only and name not in fn[0].aliases) and name not in botconfig.DISABLED_COMMANDS:
+            not fn[0].owner_only and name not in fn[0].aliases):
             fns.append("\u0002"+name+"\u0002")
     afns = []
-    if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
+    if is_admin(cloak) or cloak in botconfig.OWNERS: # todo - is_owner
         for name, fn in COMMANDS.items():
-            if fn[0].admin_only and name not in fn[0].aliases and name not in botconfig.DISABLED_COMMANDS:
+            if fn[0].admin_only and name not in fn[0].aliases:
                 afns.append("\u0002"+name+"\u0002")
     cli.notice(nick, "Commands: "+", ".join(fns))
     if afns:
