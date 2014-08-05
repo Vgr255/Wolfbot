@@ -2969,7 +2969,7 @@ def burn_house(cli, rnick, rest):
     if var.PHASE != "night":
         pm(cli, nick, "You may only burn houses at night.")
         return
-    if nick in var.BURN:
+    if nick in var.BURN and not var.BURN[nick] == None:
         pm(cli, nick, "You may only burn one house per round.")
         return
     victim = re.split(" +",rest)[0].strip().lower()
@@ -3022,6 +3022,17 @@ def burn_house(cli, rnick, rest):
     var.BURN[nick] = victim
     var.LOGGER.logBare(victim, "BURN", nick)
     chk_nightdone(cli)
+    
+@pmcmd("noburn", "no-burn", "notburn", "not-burn", raw_nick=True)
+def no_burning_pyro(clik, rnick, rest)
+    nick, mode, user, host = parse_nick(rnick)
+    if nick in var.PYROS.keys():
+        var.BURN[nick] = None
+        pm(cli, nick, "You chose to keep your molotov(s) to yourself for this night.")
+        if var.LOG_CHAN == True:
+            chan_log(cli, rnick, "no_burn")
+    else:
+        pm(cli, nick, "Only an arsonist may use this command.")
 
 @cmd("kill", "guard", "protect", "save", "visit", "see", "id", "burn")
 def wrong_window(cli, nick, chan, rest):
@@ -3485,7 +3496,7 @@ def transition_night(cli):
                        "If you burn the house of someone who is not there, they will "+
                        "survive and you will not be able to burn down their house again. "+
                        "Anyone inside the house (harlot, wolves or resident) will die. "+
-                       "You get {0}.")
+                       "Use \"no-burn\" to not use any molotov. You get {0}.")
         else:
             if var.LOG_CHAN == True:
                 cli.send("whois", g)
