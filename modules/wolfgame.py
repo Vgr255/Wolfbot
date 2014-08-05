@@ -3450,7 +3450,7 @@ def transition_night(cli):
             continue
         elif not var.PYROS[pyro]:
             continue
-        norm_notify = g in var.PLAYERS and var.PLAYERS[pyro]["cloak"] not in var.SIMPLE_NOTIFY
+        norm_notify = pyro in var.PLAYERS and var.PLAYERS[pyro]["cloak"] not in var.SIMPLE_NOTIFY
         if norm_notify:
             if var.LOG_CHAN == True:
                 cli.send("whois", pyro)
