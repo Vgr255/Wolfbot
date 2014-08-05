@@ -2292,7 +2292,7 @@ def chk_nightdone(cli):
         len(var.HVISITED.keys()) == len(var.ROLES["harlot"]) and  # harlots have harlotted.
         len(var.GUARDED.keys()) == len(var.ROLES["guardian angel"]) and  # guardians have guarded
         len(var.ROLES["werecrow"]+var.ROLES["wolf"]) == len(var.KILLS)+len(var.OBSERVED) and # wolves have wolved
-        len(var.BURN.keys()) == len(var.ROLES["arsonist"]) and # arsonists have arsoned
+        len(var.BURN.keys()) == len(var.PYROS) and # arsonists have arsoned
         var.PHASE == "night"):
         
         # check if wolves are actually agreeing
