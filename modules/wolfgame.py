@@ -2214,12 +2214,11 @@ def transition_day(cli, gameid=0):
             for roleplay in pos_surv: # Esper used to have a lot of roleplayers, you know
                 if var.SEEN[roleplay] or var.HVISITED[roleplay] or var.GUARDED[roleplay] or var.KILLS[roleplay] or var.OBSERVED[roleplay]:
                     survived_fire.append(roleplay)
-            if burned in survived_fire:
-                continue
-            message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
-                            "They have burned down to ashes and it is impossible to "+
-                            "determine the role they had when alive.").format(burned))
-            dead.append(burned)
+            if not burned in survived_fire:
+                message.append(("An \02arsonist\02 threw a molotov at \02{0}\02's house! "+
+                                "They have burned down to ashes and it is impossible to "+
+                                "determine the role they had when alive.").format(burned))
+                dead.append(burned)
     for burnh in var.BURNED_HOUSES:
         if burnh in dead or (burnh in var.BURNED and burnh not in survived_fire):
             continue # their house is burned down anyway
