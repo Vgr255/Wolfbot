@@ -252,6 +252,7 @@ def reset(cli):
     var.DEAD = []
     var.NO_LYNCH = []
     var.BURNED_HOUSES = []
+    var.BURNED = []
 
     var.ROLES = {"person" : []}
 
