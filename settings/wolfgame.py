@@ -386,7 +386,8 @@ def get_player_totals(acc):
             total = 0
             for row in rows:
                 total += row[1]
-                role_totals.append("\u0002{0}\u0002: {1}".format(*row))
+            for row in rows:
+                role_totals.append("\u0002{row[0]}\u0002: {row[1]} ({prct:.2%})".format(row=row, prct=row[1]/total))
             return "\u0002{0}\u0002's totals | \u0002{1} total games\u0002 | {2}".format(player[0], total, ", ".join(role_totals))
         else:
             return "{0} has not played any games.".format(acc)
