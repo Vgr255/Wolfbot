@@ -4190,15 +4190,17 @@ def get_help(cli, rnick, rest):
                 pm(cli, nick, "Documentation for this command is not available.")
             return
     # if command was not found, or if no command was given:
-    for name, fn in COMMANDS.items() and name not in botconfig.DISABLED_COMMANDS:
-        if (name and not fn[0].admin_only and 
-            not fn[0].owner_only and name not in fn[0].aliases):
-            fns.append("\u0002"+name+"\u0002")
+    for name, fn in COMMANDS.items():
+        if name not in botconfig.DISABLED_COMMANDS:
+            if (name and not fn[0].admin_only and 
+                not fn[0].owner_only and name not in fn[0].aliases):
+                fns.append("\u0002"+name+"\u0002")
     afns = []
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True: # todo - is_owner
-        for name, fn in COMMANDS.items() and name not in botconfig.DISABLED_COMMANDS:
-            if fn[0].admin_only and name not in fn[0].aliases:
-                afns.append("\u0002"+name+"\u0002")
+        for name, fn in COMMANDS.items():
+            if name not in botconfig.DISABLED_COMMANDS:
+                if fn[0].admin_only and name not in fn[0].aliases:
+                    afns.append("\u0002"+name+"\u0002")
     cli.notice(nick, "Commands: "+", ".join(fns))
     if afns:
         cli.notice(nick, "Admin Commands: "+", ".join(afns))
