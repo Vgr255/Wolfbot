@@ -365,7 +365,7 @@ def get_player_stats(acc, role):
     if role.lower() not in ["villager"] + [v.lower() for k, v in ROLE_INDICES.items()]:
         return "No such role: {0}".format(role)
     with conn:
-        c.execute("SELECT player FROM rolestats WHERE player=? COLLATE NOCASE", (acc,))
+        c.execute("SELECT player FROM rolestats WHERE player LIKE ? COLLATE NOCASE", (acc,))
         player = c.fetchone()
         if player:
             for row in c.execute("SELECT * FROM rolestats WHERE player=? COLLATE NOCASE AND role=? COLLATE NOCASE", (acc, role)):
@@ -378,7 +378,7 @@ def get_player_stats(acc, role):
 def get_player_totals(acc):
     role_totals = []
     with conn:
-        c.execute("SELECT player FROM rolestats WHERE player=? COLLATE NOCASE", (acc,))
+        c.execute("SELECT player FROM rolestats WHERE player LIKE ? COLLATE NOCASE", (acc,))
         player = c.fetchone()
         if player:
             c.execute("SELECT role, totalgames FROM rolestats WHERE player=? COLLATE NOCASE", (acc,))
