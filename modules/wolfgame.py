@@ -631,7 +631,6 @@ def kill_join(cli, chan):
     pl = var.list_players()
     pl.sort(key=lambda x: x.lower())
     msg = 'PING! {0}'.format(", ".join(pl))
-    reset_modes_timers(cli)
     reset(cli)
     cli.msg(chan, msg)
     cli.msg(chan, 'The current game took too long to start and ' +
