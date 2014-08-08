@@ -231,7 +231,7 @@ def reset(cli):
     var.GAME_ID = 0
 
     cmodes = []
-    cmodes.append("-m")
+    cmodes.append("-m", )
     for plr in var.list_players():
         if plr not in cmodes:
             cmodes.append(("-v", plr))
@@ -742,7 +742,7 @@ def bot_uptime(cli, rnick, rest):
 
 @cmd("update", "upd", raw_nick=True)
 @pmcmd("update", "upd", raw_nick=True)
-def updating_bot(cli, rnick, *rest):
+def update(cli, rnick, *rest):
     """Restart for an update."""
     nick, mode, user, host = parse_nick(rnick)
     if nick in var.IS_ADMIN and var.IS_ADMIN[nick] == True:
