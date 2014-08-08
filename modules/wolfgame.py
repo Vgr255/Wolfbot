@@ -230,8 +230,8 @@ def reset(cli):
 
     var.GAME_ID = 0
 
-    cli.mode(chan, "-m")
     cmodes = []
+    cmodes.append((chan, "-m"))
     for plr in var.list_players():
         if plr not in cmodes:
             cmodes.append(("-v", plr))
