@@ -591,7 +591,7 @@ def join(cli, rnick, chan, rest):
             if var.LOG_CHAN == True and var.GOT_IT != True:
                 chan_log(cli, rnick, "join_start")
             var.GOT_IT = False
-            cmodes.append("+v", nick")
+            cmodes.append("+v", nick)
             var.ROLES["person"].append(nick)
             var.PHASE = "join"
             var.WAITED = 0
