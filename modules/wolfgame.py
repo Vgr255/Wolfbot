@@ -4239,7 +4239,7 @@ def show_admins_pm(cli, rnick, rest):
     nick, mode, user, host = parse_nick(rnick)
     show_admins(cli, rnick, nick, rest)
 
-@cmd("admins", "admin", , raw_nick=True)
+@cmd("admins", "admin", raw_nick=True)
 def show_admins(cli, rnick, chan, rest):
     """Pings the admins that are available."""
     nick, mode, user, host = parse_nick(rnick)
