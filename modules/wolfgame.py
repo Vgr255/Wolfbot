@@ -176,22 +176,18 @@ def connect_callback(cli):
 
     cli.who(botconfig.CHANNEL, "%nuchaf")
 
-
-
 def mass_mode(cli, md):
     """ Example: mass_mode(cli, (('+v', 'asdf'), ('-v','wobosd'))) """
     lmd = len(md)  # store how many mode changes to do
-    for start_i in range(0, lmd, 4):  # 4 mode-changes at a time
-        if start_i + 4 > lmd:  # If this is a remainder (mode-changes < 4)
-            z = list(zip(*md[start_i:]))  # zip this remainder
-            ei = lmd % 4  # len(z)
-        else:
-            z = list(zip(*md[start_i:start_i+4])) # zip four
-            ei = 4 # len(z)
-        # Now z equal something like [('+v', '-v'), ('asdf', 'wobosd')]
-        arg1 = "".join(z[0])
-        arg2 = " ".join(z[1])  # + " " + " ".join([x+"!*@*" for x in z[1]])
-        cli.mode(botconfig.CHANNEL, arg1, arg2)
+    args = ["", ""]
+    for j in range(0, lmd):
+        for i in range(0, len(md[j])):
+            args[i] += md[j][i] + " "
+        if ((j+1) % 4) == 0:
+            cli.mode(botconfig.CHANNEL, args[0].replace(" ", ""), args[1])
+            args = ["", ""]
+    if args[0] != "":
+        cli.mode(botconfig.CHANNEL, args[0].replace(" ", ""), args[1])       
 
 def reset_modes_timers(cli):
     # Reset game timers
