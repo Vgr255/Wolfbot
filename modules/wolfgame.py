@@ -230,7 +230,7 @@ def reset(cli):
 
     var.GAME_ID = 0
 
-    cmodes = ["-m"]
+    cmodes = [("-m")]
     for plr in var.list_players():
         if plr not in cmodes:
             cmodes.append(("-v", plr))
