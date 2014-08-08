@@ -591,7 +591,7 @@ def join(cli, rnick, chan, rest):
             if var.LOG_CHAN == True and var.GOT_IT != True:
                 chan_log(cli, rnick, "join_start")
             var.GOT_IT = False
-            cmodes.append("+v", nick)
+            cmodes.append(("+v", nick))
             var.ROLES["person"].append(nick)
             var.PHASE = "join"
             var.WAITED = 0
@@ -619,13 +619,13 @@ def join(cli, rnick, chan, rest):
         else:
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
-            cmodes.append("+v", nick)
+            cmodes.append(("+v", nick))
             var.ROLES["person"].append(nick)
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
         
             var.LAST_STATS = None # reset
         if nick in var.IS_OP and var.AUTO_OP_DEOP == True and nick not in var.WAS_OP:
-            cmodes.append("-o", nick)
+            cmodes.append(("-o", nick))
             var.IS_OP.remove(nick)
             var.WAS_OP.append(nick)
         mass_mode(cli, cmodes)
