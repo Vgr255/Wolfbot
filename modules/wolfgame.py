@@ -576,6 +576,7 @@ def join(cli, rnick, chan, rest):
     """Either starts a new game of Werewolf or joins an existing game that has not started yet."""
     nick, mode, user, cloak = parse_nick(rnick)
     if chan == botconfig.CHANNEL:
+        cmodes = []
         pl = var.list_players()
         try:
             cloak = var.USERS[nick]['cloak']
@@ -590,7 +591,7 @@ def join(cli, rnick, chan, rest):
             if var.LOG_CHAN == True and var.GOT_IT != True:
                 chan_log(cli, rnick, "join_start")
             var.GOT_IT = False
-            cli.mode(chan, "+v", nick)
+            cmodes.append("+v", nick")
             var.ROLES["person"].append(nick)
             var.PHASE = "join"
             var.WAITED = 0
@@ -618,15 +619,16 @@ def join(cli, rnick, chan, rest):
         else:
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
-            cli.mode(chan, "+v", nick)
+            cmodes.append("+v", nick)
             var.ROLES["person"].append(nick)
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
         
             var.LAST_STATS = None # reset
         if nick in var.IS_OP and var.AUTO_OP_DEOP == True and nick not in var.WAS_OP:
-            cli.mode(botconfig.CHANNEL, "-o {0}".format(nick))
+            cmodes.append("-o", nick)
             var.IS_OP.remove(nick)
             var.WAS_OP.append(nick)
+        mass_mode(cli, cmodes)
             
 def kill_join(cli, chan):
     pl = var.list_players()
@@ -1279,8 +1281,7 @@ def del_player(cli, nick, forced_death = False, devoice = True):
         cmode = []
         if devoice:
             cmode.append(("-v", nick))
-        if not nick in var.BURNED:
-            var.del_player(nick)
+        var.del_player(nick)
         ret = True
         if var.PHASE == "join":
             # Died during the joining process as a person
@@ -4233,11 +4234,12 @@ def on_invite(cli, nick, something, chan):
 def is_admin(cloak):
     return bool([ptn for ptn in botconfig.OWNERS+botconfig.ADMINS if fnmatch.fnmatch(cloak.lower(), ptn.lower())])
 
-@pmcmd("admins", "a", "admin", "ops")
-def show_admins_pm(cli, nick, rest):
-    show_admins(cli, nick, nick, rest)
+@pmcmd("admins", "admin", raw_nick=True)
+def show_admins_pm(cli, rnick, rest):
+    nick, mode, user, host = parse_nick(rnick)
+    show_admins(cli, rnick, nick, rest)
 
-@cmd("admins", "a", "admin", "ops", raw_nick=True)
+@cmd("admins", "admin", , raw_nick=True)
 def show_admins(cli, rnick, chan, rest):
     """Pings the admins that are available."""
     nick, mode, user, host = parse_nick(rnick)
