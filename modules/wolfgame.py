@@ -613,12 +613,18 @@ def join(cli, rnick, chan, rest):
             cli.notice(nick, "Sorry but the game is already running.  Try again next time.")
             return
         else:
+            clones = []
+            if cloak is not None:
+                for nck in pl:
+                    if nck in var.USERS and "cloak" in var.USERS[nck] and var.USERS[nck]["cloak"] == cloak:
+                        clones.append(nck)
+            if len(clones) == 1:
+                cli.msg(botconfig.SPECIAL_CHAN, "Clones detected joining in {}: {}, {}".format(chan, nick, ', '.join(clones)))
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
             cmodes.append(("+v", nick))
             var.ROLES["person"].append(nick)
             cli.msg(chan, '\u0002{0}\u0002 has joined the game. New player count: \u0002{1}\u0002'.format(nick, len(pl)+1))
-        
             var.LAST_STATS = None # reset
         if nick in var.IS_OP and var.AUTO_OP_DEOP == True and nick not in var.WAS_OP:
             cmodes.append(("-o", nick))
