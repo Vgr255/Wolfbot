@@ -618,7 +618,7 @@ def join(cli, rnick, chan, rest):
                 for nck in pl:
                     if nck in var.USERS and "cloak" in var.USERS[nck] and var.USERS[nck]["cloak"] == cloak:
                         clones.append(nck)
-            if len(clones) == 1:
+            if len(clones) >= 1:
                 cli.msg(botconfig.SPECIAL_CHAN, "Clones detected joining in {}: {}, {}".format(chan, nick, ', '.join(clones)))
             if var.LOG_CHAN == True:
                 chan_log(cli, rnick, "join")
