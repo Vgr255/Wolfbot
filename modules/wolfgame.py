@@ -1547,7 +1547,7 @@ def update_last_said(cli, nick, chan, rest):
                     reset(cli)
                     cli.quit("Updating database")
                 if var.PHASE in ["day", "night"]:
-                    cli.msg(chan, "Code successfully updated. Restarting after current game is over.")
+                    cli.msg(chan, "Code successfully updated. Restarting once current game is over.")
                     var.GIT_UPDATE = True
                     aftergame(cli, var.FULL_ADDRESS, "update")
                     
@@ -4333,7 +4333,7 @@ def aftergame(cli, rawnick, rest):
                        "after this game by \02{1}\02.").format(cmd, nick))
     elif var.GIT_UPDATE == True:
         cli.msg(chan, "\u0002The bot will automatically restart once this game is over.\u0002")
-    var.AFTER_FLASTGAME = do_action
+    var.AFTER_FLASTGAME = do_action()
 
     
 
