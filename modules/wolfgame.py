@@ -970,10 +970,10 @@ def fday(cli, rnick, chan, rest):
 def chk_decision(cli):
     chan = botconfig.CHANNEL
     pl = var.list_players()
-    avail = len(pl) - len(var.WOUNDED) - len(var.NO_LYNCH)
+    avail = len(pl) - len(var.WOUNDED)
     votesneeded = avail // 2 + 1
     not_lynching = len(var.NO_LYNCH)
-    if not_lynching >= avail:
+    if not_lynching >= votesneeded:
         cli.msg(botconfig.CHANNEL, "Too many players refrained from voting. No lynching occuring.")
         transition_night(cli)
         return
