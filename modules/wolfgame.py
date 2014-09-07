@@ -3948,6 +3948,7 @@ def player_stats(cli, rnick, chan, rest):
                 else:
                     cli.notice(nick, user + ' is not identified with NickServ.')
                 return
+            break  # so we don't spend time going through players when we already found the account
     if not acc:
         acc = user
     
