@@ -3938,16 +3938,17 @@ def player_stats(cli, rnick, chan, rest):
         user = nick
 
     # Find the player's account if possible
-    if user in var.USERS:
-        acc = var.USERS[user]['account']
-        if acc == '*':
-            if user == nick:
-                cli.notice(nick, 'You are not identified with NickServ.')
-            else:  
-                cli.notice(nick, user + ' is not identified with NickServ.')
-
-            return
-    else:
+    acc = False
+    for us in var.USERS:
+        if us.lower() == user.lower():
+            acc = var.USERS[us]['account']
+            if acc == '*':
+                if us.lower() == nick.lower():
+                    cli.notice(nick, 'You are not identified with NickServ.')
+                else:
+                    cli.notice(nick, user + ' is not identified with NickServ.')
+                return
+    if not acc:
         acc = user
     
     # List the player's total games for all roles if no role is given
